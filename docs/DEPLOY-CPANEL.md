@@ -138,6 +138,23 @@ cd ~/zirak && php artisan schedule:run >> /dev/null 2>&1
 3. Buy a course with a real small amount in `sandbox`, then switch to `HESABPAY_DRIVER=live` and run `php artisan optimize` again.
 4. If a student pays but the webhook never arrives, check **Admin → Orders**, confirm the payment in the HesabPay dashboard, and use **Mark paid**.
 
+## 8b. Telegram login and bot (free alternative to SMS)
+
+1. In Telegram, open **@BotFather** → `/newbot` → choose a name (e.g. *Zirak*) and a username ending in `bot` (e.g. `ZirakAfBot`). Copy the **token** it gives you.
+2. Optional: `/setuserpic` (logo), `/setdescription` and `/setabouttext` in Dari/Pashto.
+3. Add to `.env` (the secret can be any long random text, e.g. from `openssl rand -hex 24`):
+
+   ```dotenv
+   TELEGRAM_BOT_TOKEN=123456789:AA...
+   TELEGRAM_BOT_USERNAME=ZirakAfBot
+   TELEGRAM_WEBHOOK_SECRET=long-random-text
+   ```
+
+4. Run `php artisan optimize` and then `php artisan zirak:telegram-setup`. It registers `https://zirak.af/webhooks/telegram` with Telegram and sets the bot's command menu in Dari, Pashto and English.
+5. Test: open the bot in Telegram and send `/start`, then use **Continue with Telegram** on the login page.
+
+The daily reminder runs from the same cron job as everything else (15:30 Kabul time) and only goes to students who have not studied that day. Students can switch it off on their profile page.
+
 ## 9. Updating the site later
 
 ```bash

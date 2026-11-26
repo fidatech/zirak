@@ -18,7 +18,7 @@ class User extends Authenticatable implements FilamentUser
     use HasFactory, Notifiable;
 
     // "role" is fillable for the admin panel only; student-facing controllers pass validated fields that never include it.
-    protected $fillable = ['name', 'nickname', 'phone', 'email', 'password', 'locale', 'is_private', 'role'];
+    protected $fillable = ['name', 'nickname', 'phone', 'email', 'password', 'locale', 'is_private', 'role', 'telegram_reminders'];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -30,6 +30,9 @@ class User extends Authenticatable implements FilamentUser
             'last_active_at' => 'datetime',
             'password' => 'hashed',
             'is_private' => 'boolean',
+            'telegram_linked_at' => 'datetime',
+            'telegram_reminded_at' => 'datetime',
+            'telegram_reminders' => 'boolean',
             'role' => UserRole::class,
         ];
     }

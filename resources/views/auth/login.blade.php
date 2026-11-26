@@ -10,5 +10,11 @@
             <button class="rounded-xl bg-brand-600 py-3.5 text-lg font-bold text-white">{{ __('app.auth.send') }}</button>
             <p class="text-sm text-slate-500">{{ __('app.auth.privacy') }}</p>
         </form>
+        @if (app(\App\Services\Telegram\TelegramClient::class)->configured())
+            <div class="flex items-center gap-3 text-sm text-slate-500"><span class="h-px flex-1 bg-slate-200"></span>{{ __('app.telegram.or') }}<span class="h-px flex-1 bg-slate-200"></span></div>
+            <a href="{{ route('login.telegram') }}" class="flex items-center justify-center gap-2 rounded-xl bg-[#229ED9] py-3.5 text-lg font-bold text-white">
+                <x-svg-icon name="send" :size="20" />{{ __('app.telegram.continue_with') }}
+            </a>
+        @endif
     </div>
 </x-layouts.app>

@@ -19,6 +19,7 @@
     @case('pencil')<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>@break
     @case('logout')<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>@break
     @case('shield')<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>@break
+    @case('send')<path d="M21 3 3 10.5l7 2.5 2.5 7z"/><path d="m10 13 4-4"/>@break
     @default<circle cx="12" cy="12" r="9"/>
 @endswitch
 </svg>

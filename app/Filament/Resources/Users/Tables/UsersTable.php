@@ -18,6 +18,8 @@ class UsersTable
                 TextColumn::make('nickname')->placeholder('—'),
                 TextColumn::make('phone')->searchable()->placeholder('—'),
                 TextColumn::make('email')->searchable()->placeholder('—'),
+                TextColumn::make('telegram_username')->label('Telegram')->formatStateUsing(fn ($state) => '@'.$state)
+                    ->placeholder(fn ($record) => $record->telegram_id ? 'linked' : '—')->toggleable(),
                 TextColumn::make('role')->badge(),
                 TextColumn::make('enrollments_count')->counts('enrollments')->label('Courses'),
                 TextColumn::make('created_at')->dateTime()->sortable(),
