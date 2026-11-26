@@ -1,0 +1,112 @@
+name: deploy
+
+# Deploys to cPanel over SSH after tests pass on main.
+# Needs repository secrets (Settings → Secrets and variables → Actions):
+#   CPANEL_SSH_HOST      server host name, e.g. server123.hosting.com
+#   CPANEL_SSH_USER      cPanel username
+#   CPANEL_SSH_KEY       private SSH key whose public key is in cPanel → SSH Access
+#   CPANEL_APP_PATH      absolute app folder on the server, e.g. /home/cpuser/zirak
+# Optional:
+#   CPANEL_SSH_PORT      SSH port (default 22)
+#   CPANEL_PHP           PHP 8.3+ CLI path (default "php"), e.g. /opt/cpanel/ea-php83/root/usr/bin/php
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      HAS_SECRETS: ${{ secrets.CPANEL_SSH_HOST != '' && secrets.CPANEL_SSH_KEY != '' }}
+    steps:
+      - name: Skip when the server is not configured yet
+        if: env.HAS_SECRETS != 'true'
+        run: echo "::notice::CPANEL_* secrets are not set, so nothing was deployed. See docs/DEPLOY-CPANEL.md."
+
+      - uses: actions/checkout@v4
+        if: env.HAS_SECRETS == 'true'
+
+      - uses: shivammathur/setup-php@v2
+        if: env.HAS_SECRETS == 'true'
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_sqlite, gd, zip
+
+      - name: Run tests
+        if: env.HAS_SECRETS == 'true'
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          cp .env.example .env && php artisan key:generate
+          php artisan test
+
+      - name: Build the production bundle
+        if: env.HAS_SECRETS == 'true'
+        run: |
+          composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress
+          php artisan filament:assets
+          rm -f .env bootstrap/cache/*.php
+
+      - name: Set up SSH
+        if: env.HAS_SECRETS == 'true'
+        env:
+          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          SSH_HOST: ${{ secrets.CPANEL_SSH_HOST }}
+          SSH_PORT: ${{ secrets.CPANEL_SSH_PORT || '22' }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Upload files
+        if: env.HAS_SECRETS == 'true'
+        env:
+          SSH_HOST: ${{ secrets.CPANEL_SSH_HOST }}
+          SSH_USER: ${{ secrets.CPANEL_SSH_USER }}
+          SSH_PORT: ${{ secrets.CPANEL_SSH_PORT || '22' }}
+          APP_PATH: ${{ secrets.CPANEL_APP_PATH }}
+        run: |
+          SSH="ssh -i ~/.ssh/deploy_key -p $SSH_PORT"
+          $SSH "$SSH_USER@$SSH_HOST" "test -f '$APP_PATH/.env' || { echo 'Missing $APP_PATH/.env — create it once by hand (docs/DEPLOY-CPANEL.md step 5).'; exit 1; }"
+          rsync -az --delete -e "$SSH" \
+            --exclude '.git/' --exclude '.github/' --exclude 'node_modules/' --exclude 'tests/' \
+            --exclude '.env' --exclude 'storage/' --exclude 'public/storage' \
+            --exclude 'bootstrap/cache/*.php' --exclude 'database/*.sqlite' \
+            ./ "$SSH_USER@$SSH_HOST:$APP_PATH/"
+
+      - name: Migrate and refresh caches
+        if: env.HAS_SECRETS == 'true'
+        env:
+          SSH_HOST: ${{ secrets.CPANEL_SSH_HOST }}
+          SSH_USER: ${{ secrets.CPANEL_SSH_USER }}
+          SSH_PORT: ${{ secrets.CPANEL_SSH_PORT || '22' }}
+          APP_PATH: ${{ secrets.CPANEL_APP_PATH }}
+          PHP_BIN: ${{ secrets.CPANEL_PHP || 'php' }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" bash -se <<EOF
+          set -e
+          cd "$APP_PATH"
+          mkdir -p storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
+          $PHP_BIN artisan down --retry=15 || true
+          $PHP_BIN artisan migrate --force
+          [ -L public/storage ] || $PHP_BIN artisan storage:link
+          $PHP_BIN artisan optimize:clear
+          $PHP_BIN artisan optimize
+          $PHP_BIN artisan up
+          EOF
+
+      - name: Bring the site back up if something failed
+        if: failure() && env.HAS_SECRETS == 'true'
+        env:
+          SSH_HOST: ${{ secrets.CPANEL_SSH_HOST }}
+          SSH_USER: ${{ secrets.CPANEL_SSH_USER }}
+          SSH_PORT: ${{ secrets.CPANEL_SSH_PORT || '22' }}
+          APP_PATH: ${{ secrets.CPANEL_APP_PATH }}
+          PHP_BIN: ${{ secrets.CPANEL_PHP || 'php' }}
+        run: ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "cd '$APP_PATH' && $PHP_BIN artisan up" || true

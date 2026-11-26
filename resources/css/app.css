@@ -1,0 +1,35 @@
+@import '@fontsource-variable/vazirmatn';
+@import '@fontsource/noto-sans-arabic/400.css';
+@import '@fontsource/noto-sans-arabic/700.css';
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../views/**/*.blade.php';
+@source '../js/**/*.js';
+@source '../../app/**/*.php';
+
+@theme {
+    --font-sans: 'Vazirmatn Variable', 'Noto Sans Arabic', ui-sans-serif, system-ui, sans-serif;
+    --color-brand-50: #F0FDFA;
+    --color-brand-100: #CCFBF1;
+    --color-brand-300: #5EEAD4;
+    --color-brand-600: #0F766E;
+    --color-brand-700: #115E59;
+    --color-brand-900: #134E4A;
+    --color-ground: #F4F7F7;
+}
+
+[x-cloak] { display: none !important; }
+
+html { -webkit-tap-highlight-color: transparent; }
+body { line-height: 1.7; }
+
+.prose-lesson p { margin: 0 0 1rem; }
+.prose-lesson h2, .prose-lesson h3 { font-weight: 800; margin: 1.25rem 0 .5rem; }
+.prose-lesson ul, .prose-lesson ol { padding-inline-start: 1.25rem; margin-bottom: 1rem; list-style: disc; }
+.prose-lesson code { background: #F1F5F9; padding: 0 .25rem; border-radius: .25rem; direction: ltr; unicode-bidi: embed; }
+
+@media print {
+    .no-print { display: none !important; }
+    body { background: #fff; }
+}

@@ -1,0 +1,4 @@
+course_code,lesson_code,type,question,option_a,option_b,option_c,option_d,correct,explanation,difficulty,tags
+L1-prs,M02-L03,single,"Which prompt will most likely give a useful CV?","Write a CV","Write my CV","Write a one-page CV for a 24-year-old accountant in Kabul with 2 years of experience, in English, with sections for skills and education","CV please",c,"A good prompt gives role, context, format and details.",easy,prompting
+L1-prs,M06-L01,true_false,"AI answers are always correct if they sound confident.","True","False",,,b,"AI can give confident wrong answers (hallucinations); always check important facts.",easy,safety
+L1-prs,M06-L03,multiple,"Which of these should you never paste into an AI chat? (choose all)","Your bank card number","A recipe question","Your passwords","A paragraph to translate","a,c","Never share passwords, card numbers or private documents with AI tools.",medium,privacy

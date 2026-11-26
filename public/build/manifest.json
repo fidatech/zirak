@@ -1,0 +1,134 @@
+{
+  "node_modules/@fontsource-variable/vazirmatn/files/vazirmatn-arabic-wght-normal.woff2": {
+    "file": "assets/vazirmatn-arabic-wght-normal-Cafbb7Zc.woff2",
+    "src": "node_modules/@fontsource-variable/vazirmatn/files/vazirmatn-arabic-wght-normal.woff2"
+  },
+  "node_modules/@fontsource-variable/vazirmatn/files/vazirmatn-latin-ext-wght-normal.woff2": {
+    "file": "assets/vazirmatn-latin-ext-wght-normal-tDTa1Fj6.woff2",
+    "src": "node_modules/@fontsource-variable/vazirmatn/files/vazirmatn-latin-ext-wght-normal.woff2"
+  },
+  "node_modules/@fontsource-variable/vazirmatn/files/vazirmatn-latin-wght-normal.woff2": {
+    "file": "assets/vazirmatn-latin-wght-normal-BFexNX-K.woff2",
+    "src": "node_modules/@fontsource-variable/vazirmatn/files/vazirmatn-latin-wght-normal.woff2"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-arabic-400-normal.woff": {
+    "file": "assets/noto-sans-arabic-arabic-400-normal-hsqIUL9Q.woff",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-arabic-400-normal.woff"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-arabic-400-normal.woff2": {
+    "file": "assets/noto-sans-arabic-arabic-400-normal-AAMxebZb.woff2",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-arabic-400-normal.woff2"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-arabic-700-normal.woff": {
+    "file": "assets/noto-sans-arabic-arabic-700-normal-DXnsSW3z.woff",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-arabic-700-normal.woff"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-arabic-700-normal.woff2": {
+    "file": "assets/noto-sans-arabic-arabic-700-normal-3CqrwsiZ.woff2",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-arabic-700-normal.woff2"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-400-normal.woff": {
+    "file": "assets/noto-sans-arabic-latin-400-normal-lr8cikIT.woff",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-400-normal.woff"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-400-normal.woff2": {
+    "file": "assets/noto-sans-arabic-latin-400-normal-CjsIS08k.woff2",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-400-normal.woff2"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-700-normal.woff": {
+    "file": "assets/noto-sans-arabic-latin-700-normal-DST6Nu2E.woff",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-700-normal.woff"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-700-normal.woff2": {
+    "file": "assets/noto-sans-arabic-latin-700-normal-D41hNJFR.woff2",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-700-normal.woff2"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-ext-400-normal.woff": {
+    "file": "assets/noto-sans-arabic-latin-ext-400-normal-D4Wl3hq7.woff",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-ext-400-normal.woff"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-ext-400-normal.woff2": {
+    "file": "assets/noto-sans-arabic-latin-ext-400-normal-CW3XQ4Yj.woff2",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-ext-400-normal.woff2"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-ext-700-normal.woff": {
+    "file": "assets/noto-sans-arabic-latin-ext-700-normal-DX5dIs2j.woff",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-ext-700-normal.woff"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-ext-700-normal.woff2": {
+    "file": "assets/noto-sans-arabic-latin-ext-700-normal-wF0ZdkCd.woff2",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-latin-ext-700-normal.woff2"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-math-400-normal.woff": {
+    "file": "assets/noto-sans-arabic-math-400-normal-BiWGKoY7.woff",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-math-400-normal.woff"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-math-400-normal.woff2": {
+    "file": "assets/noto-sans-arabic-math-400-normal-BxrVu-ji.woff2",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-math-400-normal.woff2"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-math-700-normal.woff": {
+    "file": "assets/noto-sans-arabic-math-700-normal-C3IT52xG.woff",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-math-700-normal.woff"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-math-700-normal.woff2": {
+    "file": "assets/noto-sans-arabic-math-700-normal-DhwRdyuq.woff2",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-math-700-normal.woff2"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-symbols-400-normal.woff": {
+    "file": "assets/noto-sans-arabic-symbols-400-normal-BJzmBRSy.woff",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-symbols-400-normal.woff"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-symbols-400-normal.woff2": {
+    "file": "assets/noto-sans-arabic-symbols-400-normal-BbP0vlM-.woff2",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-symbols-400-normal.woff2"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-symbols-700-normal.woff": {
+    "file": "assets/noto-sans-arabic-symbols-700-normal-Ct3Gyvbr.woff",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-symbols-700-normal.woff"
+  },
+  "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-symbols-700-normal.woff2": {
+    "file": "assets/noto-sans-arabic-symbols-700-normal-D40a2DlB.woff2",
+    "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-symbols-700-normal.woff2"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-CYT03xcJ.css",
+    "name": "app",
+    "names": [
+      "app.css"
+    ],
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "assets": [
+      "assets/vazirmatn-arabic-wght-normal-Cafbb7Zc.woff2",
+      "assets/vazirmatn-latin-ext-wght-normal-tDTa1Fj6.woff2",
+      "assets/vazirmatn-latin-wght-normal-BFexNX-K.woff2",
+      "assets/noto-sans-arabic-arabic-400-normal-AAMxebZb.woff2",
+      "assets/noto-sans-arabic-arabic-400-normal-hsqIUL9Q.woff",
+      "assets/noto-sans-arabic-math-400-normal-BxrVu-ji.woff2",
+      "assets/noto-sans-arabic-math-400-normal-BiWGKoY7.woff",
+      "assets/noto-sans-arabic-symbols-400-normal-BbP0vlM-.woff2",
+      "assets/noto-sans-arabic-symbols-400-normal-BJzmBRSy.woff",
+      "assets/noto-sans-arabic-latin-ext-400-normal-CW3XQ4Yj.woff2",
+      "assets/noto-sans-arabic-latin-ext-400-normal-D4Wl3hq7.woff",
+      "assets/noto-sans-arabic-latin-400-normal-CjsIS08k.woff2",
+      "assets/noto-sans-arabic-latin-400-normal-lr8cikIT.woff",
+      "assets/noto-sans-arabic-arabic-700-normal-3CqrwsiZ.woff2",
+      "assets/noto-sans-arabic-arabic-700-normal-DXnsSW3z.woff",
+      "assets/noto-sans-arabic-math-700-normal-DhwRdyuq.woff2",
+      "assets/noto-sans-arabic-math-700-normal-C3IT52xG.woff",
+      "assets/noto-sans-arabic-symbols-700-normal-D40a2DlB.woff2",
+      "assets/noto-sans-arabic-symbols-700-normal-Ct3Gyvbr.woff",
+      "assets/noto-sans-arabic-latin-ext-700-normal-wF0ZdkCd.woff2",
+      "assets/noto-sans-arabic-latin-ext-700-normal-DX5dIs2j.woff",
+      "assets/noto-sans-arabic-latin-700-normal-D41hNJFR.woff2",
+      "assets/noto-sans-arabic-latin-700-normal-DST6Nu2E.woff"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-CobL7G-d.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  }
+}

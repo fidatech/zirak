@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!-- Sample certificate layout for mPDF or Browsershot. A4 landscape. Replace {{placeholders}} in Blade. -->
+<!-- Pashto/Dari text below is a DRAFT for native review. -->
+<html lang="prs" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Certificate</title>
+<style>
+  @page { size: A4 landscape; margin: 0; }
+  body { margin: 0; font-family: "Vazirmatn", "Noto Naskh Arabic", sans-serif; color: #1f2937; }
+  .page { width: 297mm; height: 210mm; box-sizing: border-box; padding: 18mm 22mm; position: relative;
+          border: 6mm solid #0f766e; }
+  .inner { border: 0.6mm solid #99f6e4; height: 100%; box-sizing: border-box; padding: 12mm 16mm; text-align: center; }
+  .brand { font-size: 14pt; letter-spacing: 1px; color: #0f766e; font-weight: 700; }
+  .type { font-size: 30pt; font-weight: 800; margin: 8mm 0 2mm; }
+  .type-en { font-size: 12pt; color: #6b7280; direction: ltr; }
+  .given { font-size: 13pt; margin-top: 10mm; }
+  .name { font-size: 28pt; font-weight: 700; margin: 4mm 0; border-bottom: 0.4mm solid #d1d5db; display: inline-block; padding: 0 12mm 2mm; }
+  .course { font-size: 15pt; margin-top: 4mm; }
+  .meta { font-size: 11pt; color: #4b5563; margin-top: 6mm; }
+  .footer { position: absolute; bottom: 30mm; left: 40mm; right: 40mm; display: flex; justify-content: space-between; align-items: flex-end; }
+  .sign { text-align: center; font-size: 10pt; }
+  .sign .line { border-top: 0.3mm solid #9ca3af; width: 55mm; margin-bottom: 2mm; }
+  .qr { text-align: center; font-size: 8.5pt; direction: ltr; }
+  .qr img { width: 28mm; height: 28mm; }
+  .note { position: absolute; bottom: 22mm; left: 0; right: 0; font-size: 8pt; color: #9ca3af; direction: ltr; text-align: center; }
+</style>
+</head>
+<body>
+<div class="page"><div class="inner">
+  <div class="brand">{{ institute_name }}</div>
+  <div class="type">تصدیق‌نامه موفقیت</div>
+  <div class="type-en">Certificate of Achievement</div>
+
+  <div class="given">این تصدیق‌نامه اعطا می‌شود به</div>
+  <div class="name">{{ name_on_certificate }}</div>
+
+  <div class="course">برای تکمیل موفقانه دوره <strong>{{ course_title }}</strong></div>
+  <div class="meta">سطح {{ level }} · {{ hours }} ساعت · نمره {{ score }}% · تاریخ {{ issue_date }}</div>
+
+  <div class="footer">
+    <div class="sign"><div class="line"></div>{{ director_name }}<br>مدیر علمی · Academic Director</div>
+    <div class="qr"><img src="{{ qr_data_uri }}" alt="QR"><br>{{ code }}<br>{{ verify_url }}</div>
+  </div>
+  <div class="note">Non-degree professional certificate issued by {{ institute_name }}. Verify at {{ verify_url }}</div>
+</div></div>
+</body>
+</html>
