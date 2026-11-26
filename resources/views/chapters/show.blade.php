@@ -71,7 +71,8 @@
                         @endif
                     @endif
                 </div>
-                <aside class="w-full rounded-2xl border border-slate-200 bg-white p-3 lg:w-80 lg:shrink-0">
+                <div class="flex w-full flex-col gap-4 lg:w-80 lg:shrink-0">
+                <aside class="rounded-2xl border border-slate-200 bg-white p-3">
                     <div class="px-2 pb-2 font-extrabold">{{ __('app.chapter.learn') }} · {{ n($state['lessons_done']) }}/{{ n($state['lessons_total']) }}</div>
                     @foreach ($lessons as $i => $l)
                         <a href="{{ route('chapters.show', [$course, $chapter, 'learn', 'lesson' => $l->id]) }}" @if($lesson?->is($l)) aria-current="page" @endif @class(['flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm', 'bg-brand-100 font-bold text-brand-600' => $lesson?->is($l), 'text-slate-700 hover:bg-slate-50' => ! $lesson?->is($l)])>
@@ -85,6 +86,10 @@
                         </a>
                     @endforeach
                 </aside>
+                @if ($enrolled)
+                    <x-tutor-panel :course="$course" :lesson="$lesson" />
+                @endif
+                </div>
             </div>
         @elseif ($tab === 'practice')
             <div class="mx-auto max-w-2xl">

@@ -114,10 +114,7 @@
                     <div class="flex justify-between py-1 text-sm"><span class="text-slate-600">{{ __('app.course.progress') }}</span><strong>{{ pct($state['percent']) }}</strong></div>
                     <div class="flex justify-between py-1 text-sm"><span class="text-slate-600">{{ __('app.course.avg_score') }}</span><strong>{{ $state['average_score'] !== null ? pct($state['average_score']) : '—' }}</strong></div>
                 </div>
-                <div class="rounded-2xl border border-brand-300 bg-brand-50 p-5">
-                    <div class="font-extrabold">{{ __('app.chapter.ask') }}</div>
-                    <p class="mt-1 text-sm text-brand-900">{{ __('app.chapter.ask_text') }}</p>
-                </div>
+                <x-tutor-panel :course="$course" />
             @else
                 <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                     <div class="flex flex-col gap-3 p-5">

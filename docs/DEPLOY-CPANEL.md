@@ -100,6 +100,10 @@ SMS_DRIVER=log            # until an SMS provider is added
 HESABPAY_DRIVER=sandbox   # then "live" after testing
 HESABPAY_API_KEY=your-hesabpay-key
 BUNNY_LIBRARY_ID=         # when you start uploading videos
+
+AI_TUTOR_DRIVER=anthropic # "fake" is switched off in production
+ANTHROPIC_API_KEY=sk-ant-...
+AI_TUTOR_DAILY_LIMIT=20   # questions per student per day (controls cost)
 ```
 
 `HESABPAY_DRIVER=fake` is refused in production on purpose.

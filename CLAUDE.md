@@ -9,6 +9,7 @@ Online AI & skills institute for Afghan learners in **Dari (`prs`)**, **Pashto (
 - Payments: `App\Services\Payments` — `CheckoutService` picks `HesabPayGateway` (sandbox/live) or `FakeGateway` (local only; refused in production).
 - SMS: `App\Services\Sms\SmsSender` (only `LogSmsSender` so far).
 - Video: Bunny Stream embeds by `lessons.video_id` + `BUNNY_LIBRARY_ID`.
+- AI tutor: `App\Services\Tutor` — `TutorService` + `CourseContext` (keyword-ranked lesson text, no vector DB) + `AnthropicTutorClient` (Claude Messages API) or `FakeTutorClient` (off in production). Messages in `tutor_messages` (roles student | ai | teacher); escalated questions are answered in Admin → Student questions.
 
 The roadmap in `docs/roadmap` mentions Inertia/React; we chose Blade + Alpine instead because it needs no build step or Node on cPanel and stays light on slow phones.
 
@@ -24,7 +25,7 @@ Progress: `Enrollment`, `LessonCompletion`, `PracticeAnswer`, `TestAttempt`. Com
 4. **Money** is integers (AFN, or US cents). Access is granted only by `EnrollmentService::markPaid()` from a **verified** webhook, the demo gateway, a 100% coupon, or an admin "mark paid" — never from the browser return URL.
 5. **Webhooks** are stored in `gateway_events`; processing must stay idempotent (`markPaid` locks the order row).
 6. **Privacy:** phone numbers are never shown to other students or instructors; nicknames allowed.
-7. Practice answers return the correct option only **after** the student answers.
+7. Practice answers return the correct option only **after** the student answers. The tutor must not hand out test answers, and course material goes into the prompt as reference data inside `<course_material>`.
 8. Any new student-facing feature needs a feature test. Run `php artisan test` and `vendor/bin/pint` before committing. Rebuild assets with `npm run build` when views or CSS change, and commit `public/build`.
 
 ## Commands

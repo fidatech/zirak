@@ -92,7 +92,7 @@
     "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-symbols-700-normal.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-nxHis8M-.css",
+    "file": "assets/app-DujnCRAf.css",
     "name": "app",
     "names": [
       "app.css"
@@ -126,7 +126,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-2pEp3BHp.js",
+    "file": "assets/app-Tl8Tf-tb.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true

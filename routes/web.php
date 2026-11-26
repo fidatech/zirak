@@ -9,6 +9,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\TutorController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -37,6 +38,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/courses/{course}/chapters/{chapter}/practice', [ChapterController::class, 'answer'])->name('practice.answer');
         Route::post('/courses/{course}/chapters/{chapter}/test', [ChapterController::class, 'submitTest'])->name('test.submit');
     });
+
+    Route::get('/courses/{course}/tutor', [TutorController::class, 'history'])->name('tutor.history');
+    Route::post('/courses/{course}/tutor', [TutorController::class, 'ask'])->name('tutor.ask')->middleware('throttle:8,1');
+    Route::post('/tutor/{message}/escalate', [TutorController::class, 'escalate'])->name('tutor.escalate');
+    Route::post('/tutor/{message}/rate', [TutorController::class, 'rate'])->name('tutor.rate');
 
     Route::get('/report', ReportController::class)->name('report');
     Route::get('/certificates', [CertificateController::class, 'index'])->name('certificates.index');

@@ -17,4 +17,16 @@ return [
 
     // log = write codes to storage/logs (development). Add a real SMS provider later.
     'sms_driver' => env('SMS_DRIVER', 'log'),
+
+    // AI tutor: answers students' questions from their course's lessons.
+    'tutor' => [
+        'enabled' => (bool) env('AI_TUTOR_ENABLED', true),
+        // anthropic = Claude API, fake = canned answers for local development and tests
+        'driver' => env('AI_TUTOR_DRIVER', 'fake'),
+        'model' => env('AI_TUTOR_MODEL', 'claude-haiku-5-5'),
+        'api_key' => env('ANTHROPIC_API_KEY'),
+        'daily_limit' => (int) env('AI_TUTOR_DAILY_LIMIT', 20),
+        'max_answer_tokens' => (int) env('AI_TUTOR_MAX_TOKENS', 600),
+        'context_chars' => 9000,
+    ],
 ];
