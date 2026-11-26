@@ -35,6 +35,14 @@ return [
         ],
     ],
 
+    'telegram' => [
+        // From @BotFather. Leave empty to hide Telegram login and the bot.
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'bot_username' => env('TELEGRAM_BOT_USERNAME'), // without @
+        // Random string; Telegram sends it back in a header so only Telegram can call the webhook.
+        'webhook_secret' => env('TELEGRAM_WEBHOOK_SECRET'),
+    ],
+
     'bunny' => [
         // Bunny Stream video library ID (videos are embedded by their video ID)
         'library_id' => env('BUNNY_LIBRARY_ID'),

@@ -100,6 +100,10 @@ SMS_DRIVER=log            # until an SMS provider is added
 HESABPAY_DRIVER=sandbox   # then "live" after testing
 HESABPAY_API_KEY=your-hesabpay-key
 BUNNY_LIBRARY_ID=         # when you start uploading videos
+
+AI_TUTOR_DRIVER=anthropic # "fake" is switched off in production
+ANTHROPIC_API_KEY=sk-ant-...
+AI_TUTOR_DAILY_LIMIT=20   # questions per student per day (controls cost)
 ```
 
 `HESABPAY_DRIVER=fake` is refused in production on purpose.
@@ -133,6 +137,19 @@ cd ~/zirak && php artisan schedule:run >> /dev/null 2>&1
 2. Add and verify `zirak.af` as an allowed domain. Production checkout requires a verified domain, and the success/failure pages must be on it.
 3. Buy a course with a real small amount in `sandbox`, then switch to `HESABPAY_DRIVER=live` and run `php artisan optimize` again.
 4. If a student pays but the webhook never arrives, check **Admin → Orders**, confirm the payment in the HesabPay dashboard, and use **Mark paid**.
+
+## 8b. Keys for payments, videos, AI tutor and Telegram: Admin → Settings
+
+You don't need to edit `.env` for these. Log in to `https://zirak.af/admin` → **Settings**:
+
+- **Payments (HesabPay):** choose *Sandbox*, paste the test API key and save. Switch to *Live* with the live key when HesabPay approves you.
+- **Videos (Bunny Stream):** the video library ID.
+- **AI tutor:** choose *Claude*, paste the Anthropic API key and press **Save and send a test question**.
+- **Telegram:** in Telegram open **@BotFather** → `/newbot` and copy the token. Paste it here and press **Save and connect bot**. The username, the webhook secret, the webhook and the bot's command menu in Dari, Pashto and English are all set up for you.
+
+Keys are stored encrypted with `APP_KEY` and are never shown again (only their last 4 characters). **Never change `APP_KEY` after launch:** saved keys can't be decrypted with a new one and would have to be entered again. Values in `.env` still work as defaults; a value saved in Settings wins.
+
+The daily Telegram reminder runs from the same cron job as everything else (15:30 Kabul time) and only goes to students who have not studied that day. Students can switch it off on their profile page.
 
 ## 9. Updating the site later
 
