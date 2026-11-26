@@ -49,14 +49,14 @@ class Settings
     /** Decrypted saved values (only keys that were saved in admin). */
     public function saved(): array
     {
-        $rows = Cache::get(self::CACHE_KEY);
-        if ($rows === null) {
-            try {
+        try {
+            $rows = Cache::get(self::CACHE_KEY);
+            if ($rows === null) {
                 $rows = Setting::whereIn('key', array_keys(self::FIELDS))->pluck('value', 'key')->all();
                 Cache::forever(self::CACHE_KEY, $rows); // still encrypted in the cache
-            } catch (Throwable) {
-                return []; // e.g. before migrations ran
             }
+        } catch (Throwable) {
+            return []; // no database or tables yet (fresh install, composer scripts): use .env
         }
 
         $values = [];

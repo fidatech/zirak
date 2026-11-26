@@ -8,6 +8,7 @@ use App\Models\Setting;
 use App\Models\User;
 use App\Services\Settings as SettingsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
@@ -134,5 +135,15 @@ class SettingsTest extends TestCase
             ->call('testTutor')
             ->assertNotified('The AI tutor works');
         Http::assertSent(fn ($r) => $r->hasHeader('x-api-key', 'sk-ant-x'));
+    }
+
+    public function test_app_still_boots_without_a_database(): void
+    {
+        // Fresh server before the first migration: the cache table and database are missing.
+        Cache::shouldReceive('get')->andThrow(new \RuntimeException('Database file does not exist'));
+        config(['services.bunny.library_id' => 'from-env']);
+
+        app(SettingsService::class)->apply();
+        $this->assertSame('from-env', config('services.bunny.library_id'));
     }
 }
