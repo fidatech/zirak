@@ -67,6 +67,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('home');
+        // Phones are often shared: remove lessons saved for offline and any cached pages.
+        return redirect()->route('home')->header('Clear-Site-Data', '"cache", "storage"');
     }
 }

@@ -22,6 +22,7 @@ class ProfileController extends Controller
             'locale' => ['required', Rule::in(array_keys(config('zirak.locales')))],
         ]);
 
+        $data['data_saver'] = $request->boolean('data_saver');
         $request->user()->update($data);
         $request->session()->put('locale', $data['locale']);
 

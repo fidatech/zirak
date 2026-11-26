@@ -16,6 +16,10 @@
                     @endforeach
                 </select>
             </label>
+            <label class="flex items-start gap-3">
+                <input type="checkbox" name="data_saver" value="1" @checked(old('data_saver', $user->data_saver)) class="mt-1 h-5 w-5 accent-brand-600">
+                <span><span class="font-bold">{{ __('app.offline.data_saver') }}</span><span class="block text-sm text-slate-600">{{ __('app.offline.data_saver_help') }}</span></span>
+            </label>
             <div class="text-sm text-slate-500" dir="ltr">{{ $user->phone }}</div>
             <button class="rounded-xl bg-brand-600 py-3 font-bold text-white">{{ __('app.save') }}</button>
         </form>
@@ -42,7 +46,8 @@
                 @endif
             </section>
         @endif
+        <x-offline-list />
         <a href="{{ route('certificates.index') }}" class="rounded-2xl border border-slate-200 bg-white p-4 font-bold">{{ __('app.cert.mine') }}</a>
-        <form method="POST" action="{{ route('logout') }}">@csrf<button class="w-full rounded-2xl border border-slate-200 bg-white p-4 text-start text-slate-700">{{ __('app.nav.logout') }}</button></form>
+        <form method="POST" action="{{ route('logout') }}" data-logout>@csrf<button class="w-full rounded-2xl border border-slate-200 bg-white p-4 text-start text-slate-700">{{ __('app.nav.logout') }}</button></form>
     </div>
 </x-layouts.app>
