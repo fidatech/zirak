@@ -1,0 +1,29 @@
+name: Verify cPanel SSH
+on:
+  push:
+    branches: [verify-cpanel-ssh]
+permissions: {}
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify SSH login
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          umask 077
+          key_dir="$(mktemp -d)"
+          trap 'rm -rf -- "$key_dir"' EXIT
+          : "${SSH_PRIVATE_KEY:?}" "${SSH_HOST:?}" "${SSH_PORT:?}" "${SSH_USER:?}" "${SSH_KNOWN_HOSTS:?}"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$key_dir/key"
+          unset SSH_PRIVATE_KEY
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$key_dir/known_hosts"
+          remote_user="$(ssh -T -p "$SSH_PORT" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$key_dir/known_hosts" -o ConnectTimeout=15 -i "$key_dir/key" -l "$SSH_USER" -- "$SSH_HOST" 'id -un')"
+          test "$remote_user" = "$SSH_USER"
+          printf '%s\n' 'Verified cPanel SSH login'
