@@ -30,3 +30,11 @@ if (! function_exists('pct')) {
         return n((int) $value).(in_array(app()->getLocale(), ['prs', 'ps'], true) ? '٪' : '%');
     }
 }
+
+if (! function_exists('data_saver')) {
+    /** Save mobile data: the student's own setting, or the browser's "Save-Data: on" header (Android data saver). */
+    function data_saver(): bool
+    {
+        return (bool) auth()->user()?->data_saver || strtolower((string) request()->header('Save-Data')) === 'on';
+    }
+}

@@ -20,6 +20,8 @@
     @case('logout')<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>@break
     @case('shield')<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>@break
     @case('send')<path d="M21 3 3 10.5l7 2.5 2.5 7z"/><path d="m10 13 4-4"/>@break
+    @case('download')<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>@break
+    @case('cloud-off')<path d="M3 3l18 18M8 8a5 5 0 0 0-1 10h10M12 6a5 5 0 0 1 5 5 4 4 0 0 1 3 6"/>@break
     @default<circle cx="12" cy="12" r="9"/>
 @endswitch
 </svg>

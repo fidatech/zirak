@@ -45,6 +45,7 @@ class ChapterController extends Controller
         $chapters = $course->chapters()->get();
 
         $data = compact('course', 'chapter', 'tab', 'lessons', 'lesson', 'completed', 'state', 'enrolled', 'chapters');
+        $data['offline'] = $enrolled ? $this->offlinePack($course, $chapter, $lessons) : null;
 
         if ($tab === 'practice') {
             $questions = $chapter->practiceQuestions()->get();
@@ -67,6 +68,23 @@ class ChapterController extends Controller
         }
 
         return view('chapters.show', $data);
+    }
+
+    /** Pages a student can save on the phone to study this chapter without internet. */
+    private function offlinePack(Course $course, Chapter $chapter, $lessons): array
+    {
+        $path = fn (string $url) => parse_url($url, PHP_URL_PATH).(($q = parse_url($url, PHP_URL_QUERY)) ? '?'.$q : '');
+
+        return [
+            'key' => $course->slug.'/'.$chapter->id,
+            'title' => $chapter->title,
+            'course' => $course->title,
+            'url' => $path(route('chapters.show', [$course, $chapter])),
+            'urls' => collect([route('courses.show', $course), route('chapters.show', [$course, $chapter])])
+                ->merge($lessons->map(fn (Lesson $l) => route('chapters.show', [$course, $chapter, 'learn', 'lesson' => $l->id])))
+                ->push(route('chapters.show', [$course, $chapter, 'practice']))
+                ->map($path)->values()->all(),
+        ];
     }
 
     public function completeLesson(Request $request, Course $course, Chapter $chapter, Lesson $lesson): RedirectResponse

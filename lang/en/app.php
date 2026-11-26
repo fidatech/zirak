@@ -199,7 +199,24 @@ return [
 
     'offline' => [
         'title' => 'You are offline',
-        'text' => 'Lessons you opened before may still work. Refresh the page when you are back online.',
+        'text' => 'Lessons you saved or opened before still work. Refresh the page when you are back online.',
+        'save' => 'Save for offline',
+        'saving' => 'Saving…',
+        'saved' => 'Saved on this phone',
+        'remove' => 'Remove',
+        'save_failed' => 'Could not save. Check your internet and try again.',
+        'saved_title' => 'Saved for offline',
+        'saved_empty' => 'Nothing saved yet. Open a chapter and press "Save for offline".',
+        'total' => 'Total: :size',
+        'pending' => ':n answers are waiting for the internet.',
+        'bar' => 'You are offline. Saved lessons and practice still work.',
+        'practice_pending' => 'Your answer is saved. You will see if it was right when you are back online.',
+        'complete_queued' => 'Saved. It will be sent when you are back online.',
+        'test_offline' => 'You need the internet to submit the test. Your answers are still here.',
+        'play_video' => 'Play video',
+        'video_data' => 'Data saver is on: the video loads only when you press play.',
+        'data_saver' => 'Data saver',
+        'data_saver_help' => 'Videos load only when you press play. Good for mobile data.',
     ],
 
     'tutor' => [
