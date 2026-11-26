@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // cPanel has no long-running workers: process queued jobs from cron every minute.
 Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->withoutOverlapping();
+
+// Daily Telegram study reminder, mid-afternoon Kabul time.
+Schedule::command('zirak:telegram-reminders')->dailyAt('15:30')->timezone('Asia/Kabul')->withoutOverlapping();

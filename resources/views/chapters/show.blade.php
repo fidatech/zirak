@@ -11,6 +11,16 @@
                     <div class="truncate font-extrabold">{{ $chapter->title }}</div>
                 </div>
             </div>
+            @if ($offline)
+                <div x-data="saveOffline(@js($offline))" x-show="supported" x-cloak class="flex items-center gap-2 text-sm">
+                    <button type="button" x-show="! saved" @click="save()" :disabled="busy" class="flex items-center gap-1.5 rounded-xl border border-slate-300 px-3 py-2 font-bold text-slate-700">
+                        <x-svg-icon name="download" :size="16" /><span x-text="busy ? @js(__('app.offline.saving')) : @js(__('app.offline.save'))">{{ __('app.offline.save') }}</span>
+                    </button>
+                    <span x-show="saved" class="flex items-center gap-1.5 rounded-xl bg-green-100 px-3 py-2 font-bold text-green-900"><x-svg-icon name="check" :size="16" />{{ __('app.offline.saved') }}</span>
+                    <button type="button" x-show="saved" @click="remove()" class="text-slate-600 underline">{{ __('app.offline.remove') }}</button>
+                    <span x-show="failed" class="text-red-700">{{ __('app.offline.save_failed') }}</span>
+                </div>
+            @endif
             @if ($enrolled)
                 <nav class="grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1 text-sm" aria-label="{{ $chapter->title }}">
                     @foreach (['learn', 'practice', 'test'] as $i => $t)
@@ -30,7 +40,18 @@
             <div class="flex flex-col gap-5 lg:flex-row lg:items-start">
                 <div class="flex min-w-0 flex-1 flex-col gap-4">
                     @if ($lesson)
-                        @if ($lesson->video_id && config('services.bunny.library_id'))
+                        @if ($lesson->video_id && config('services.bunny.library_id') && data_saver())
+                            <div class="aspect-video overflow-hidden rounded-2xl bg-slate-900" x-data="{ play: false }" data-video-saver>
+                                <template x-if="play">
+                                    <iframe src="https://iframe.mediadelivery.net/embed/{{ config('services.bunny.library_id') }}/{{ $lesson->video_id }}?autoplay=true&preload=true" class="h-full w-full border-0" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture" allowfullscreen title="{{ $lesson->title }}"></iframe>
+                                </template>
+                                <button type="button" x-show="! play" @click="play = true" class="flex h-full w-full flex-col items-center justify-center gap-3 p-4 text-center text-white">
+                                    <span class="flex h-16 w-16 items-center justify-center rounded-full bg-white/15"><x-svg-icon name="play" :size="28" /></span>
+                                    <span class="font-bold">{{ __('app.offline.play_video') }}</span>
+                                    <span class="max-w-xs text-sm text-slate-300">{{ __('app.offline.video_data') }}</span>
+                                </button>
+                            </div>
+                        @elseif ($lesson->video_id && config('services.bunny.library_id'))
                             <div class="aspect-video overflow-hidden rounded-2xl bg-slate-900">
                                 <iframe src="https://iframe.mediadelivery.net/embed/{{ config('services.bunny.library_id') }}/{{ $lesson->video_id }}?autoplay=false&preload=false" loading="lazy" class="h-full w-full border-0" allow="accelerometer; gyroscope; encrypted-media; picture-in-picture" allowfullscreen title="{{ $lesson->title }}"></iframe>
                             </div>
@@ -64,8 +85,9 @@
                                 @if (in_array($lesson->id, $completed))
                                     <span class="flex items-center gap-2 rounded-xl bg-green-100 px-4 py-3 font-bold text-green-900"><x-svg-icon name="check" :size="18" />{{ __('app.chapter.completed') }}</span>
                                 @endif
-                                <form method="POST" action="{{ route('lessons.complete', [$course, $chapter, $lesson]) }}">@csrf
-                                    <button class="rounded-xl bg-brand-600 px-6 py-3 font-bold text-white">{{ __('app.chapter.mark_complete') }}</button>
+                                <form method="POST" action="{{ route('lessons.complete', [$course, $chapter, $lesson]) }}" x-data="completeLesson" @submit="submit($event)" class="flex flex-wrap items-center gap-3">@csrf
+                                    <button x-show="! queued" class="rounded-xl bg-brand-600 px-6 py-3 font-bold text-white">{{ __('app.chapter.mark_complete') }}</button>
+                                    <span x-show="queued" x-cloak class="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">{{ __('app.offline.complete_queued') }}</span>
                                 </form>
                             </div>
                         @endif
@@ -112,7 +134,8 @@
                                 </div>
                                 <template x-if="result">
                                     <div class="flex flex-col gap-3">
-                                        <div class="rounded-2xl border p-4 leading-loose" :class="result.correct ? 'border-green-200 bg-green-50 text-green-900' : 'border-red-200 bg-red-50 text-red-900'">
+                                        <div x-show="result.pending" class="rounded-2xl border border-amber-200 bg-amber-50 p-4 leading-loose text-amber-900">{{ __('app.offline.practice_pending') }}</div>
+                                        <div x-show="! result.pending" class="rounded-2xl border p-4 leading-loose" :class="result.correct ? 'border-green-200 bg-green-50 text-green-900' : 'border-red-200 bg-red-50 text-red-900'">
                                             <strong x-text="result.correct ? @js(__('app.chapter.correct')) : @js(__('app.chapter.wrong'))"></strong>
                                             <span x-text="result.explanation"></span>
                                         </div>
@@ -155,7 +178,8 @@
                             @endif
                         </div>
                     @endif
-                    <form method="POST" action="{{ route('test.submit', [$course, $chapter]) }}" class="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-5 md:p-6">
+                    <form method="POST" action="{{ route('test.submit', [$course, $chapter]) }}" class="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-5 md:p-6"
+                          x-data="{ offline: false }" @submit="if (! navigator.onLine) { $event.preventDefault(); offline = true; $el.scrollIntoView({ block: 'end' }) }" data-needs-internet>
                         @csrf
                         <div>
                             <h1 class="text-2xl font-extrabold">{{ $lastAttempt ? __('app.chapter.retake') : __('app.chapter.test') }}</h1>
@@ -172,6 +196,7 @@
                                 @endforeach
                             </fieldset>
                         @endforeach
+                        <div x-show="offline" x-cloak class="rounded-xl bg-amber-50 p-3 text-sm text-amber-900">{{ __('app.offline.test_offline') }}</div>
                         <button class="rounded-xl bg-brand-600 py-3.5 text-lg font-bold text-white">{{ __('app.chapter.submit_test') }}</button>
                     </form>
                 @endif

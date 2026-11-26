@@ -38,7 +38,7 @@
     <div class="mt-auto flex flex-col gap-2">
         <x-lang-switch />
         @auth
-            <form method="POST" action="{{ route('logout') }}">@csrf
+            <form method="POST" action="{{ route('logout') }}" data-logout>@csrf
                 <button class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] text-slate-600 hover:bg-slate-50"><x-svg-icon name="logout" :size="20" />{{ __('app.nav.logout') }}</button>
             </form>
         @endauth
@@ -55,6 +55,9 @@
 @endunless
 
 <main @class(['pb-24 lg:pb-10', 'lg:ps-60' => ! $bare])>
+    <div x-data="connection" x-show="! online" x-cloak role="status" class="flex items-center gap-2 bg-slate-800 px-4 py-2 text-sm text-white">
+        <x-svg-icon name="cloud-off" :size="16" />{{ __('app.offline.bar') }}
+    </div>
     @if (session('status'))
         <div class="no-print mx-auto mt-4 max-w-5xl px-4">
             <div class="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-green-900" role="status">{{ session('status') }}</div>
