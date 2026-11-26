@@ -158,3 +158,34 @@ Front-end files are pre-built in `public/build`, so the server never needs Node.
 | "Permission denied" on storage | `chmod -R 775 storage bootstrap/cache` |
 | Admin panel looks broken | `php artisan filament:assets` |
 | Login code never arrives | Normal with `SMS_DRIVER=log`; the code is in `storage/logs/laravel.log` until an SMS provider is connected |
+
+## Automatic deploys from GitHub (recommended)
+
+After the first manual setup (steps 1–2 and 4–7: server, database, document root, `.env`, admin, cron), every merge to `main` can update the live site by itself. GitHub runs the tests, builds the production files, uploads them to your server over SSH, runs the database migrations and refreshes the caches. If anything fails, the site is put back online and nothing else changes.
+
+With automatic deploys you can skip `git clone` in step 3: GitHub uploads the files. Create the folder first: `mkdir ~/zirak`, put `.env` in it (step 5), and the first deploy fills in the rest. Run step 6 (migrations, admin) after that first deploy.
+
+**1. Create a key for GitHub** (on your own computer, not the server):
+
+```bash
+ssh-keygen -t ed25519 -C "github-deploy-zirak" -f zirak_github_deploy -N ""
+```
+
+**2. Allow it on the server:** cPanel → **SSH Access** → Manage SSH Keys → **Import Key** → paste the contents of `zirak_github_deploy.pub` → then **Authorize** it.
+
+**3. Add the secrets on GitHub:** repository → **Settings → Secrets and variables → Actions → New repository secret**:
+
+| Secret | Example |
+|---|---|
+| `CPANEL_SSH_HOST` | `server123.yourhost.com` |
+| `CPANEL_SSH_USER` | `cpuser` |
+| `CPANEL_SSH_KEY` | the whole contents of the private file `zirak_github_deploy` |
+| `CPANEL_APP_PATH` | `/home/cpuser/zirak` |
+| `CPANEL_SSH_PORT` | only if your host does not use 22 (many use 2222 or 21098) |
+| `CPANEL_PHP` | only if `php -v` on the server is older than 8.3, e.g. `/opt/cpanel/ea-php83/root/usr/bin/php` |
+
+Then delete the key files from your computer, or keep them somewhere safe.
+
+**4. Deploy:** merge a pull request into `main`, or run it by hand: **Actions → deploy → Run workflow**. Watch progress in the Actions tab.
+
+Until the secrets exist, the workflow only prints a note and changes nothing.
