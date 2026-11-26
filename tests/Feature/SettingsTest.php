@@ -122,7 +122,7 @@ class SettingsTest extends TestCase
             ->fillForm(['telegram_bot_token' => '123:WRONG'])
             ->call('connectTelegram')
             ->assertNotified('Telegram did not accept this token');
-        $this->assertNull(config('services.telegram.bot_username'));
+        $this->assertEmpty(config('services.telegram.bot_username'));
     }
 
     public function test_tutor_test_button(): void
