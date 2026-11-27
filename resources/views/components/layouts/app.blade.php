@@ -1,11 +1,11 @@
-@props(['title' => null, 'bare' => false])
+@props(['title' => null, 'bare' => false, 'landing' => false])
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() === 'prs' ? 'fa-AF' : app()->getLocale() }}" dir="{{ text_dir() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#0F766E">
+    <meta name="theme-color" content="#2E2A93">
     <title>{{ $title ? $title.sep() : '' }}{{ __('app.brand') }}</title>
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
@@ -20,10 +20,10 @@
         : [['home', 'home', 'nav.home'], ['catalog', 'grid', 'nav.courses'], ['certificates.verify', 'shield', 'nav.verify'], ['login', 'user', 'nav.login']];
 @endphp
 
-@unless ($bare)
+@unless ($bare || $landing)
 <aside class="no-print fixed inset-y-0 start-0 z-30 hidden w-60 flex-col gap-1 border-e border-slate-200 bg-white px-4 py-6 lg:flex">
     <a href="{{ route('home') }}" class="mb-5 flex items-center gap-2 px-2">
-        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-lg font-extrabold text-white">{{ mb_substr(__('app.brand'), 0, 1) }}</span>
+        <span class="bg-brand-gradient flex h-10 w-10 items-center justify-center rounded-xl text-lg font-extrabold text-white">{{ mb_substr(__('app.brand'), 0, 1) }}</span>
         <span class="text-2xl font-extrabold">{{ __('app.brand') }}</span>
     </a>
     @foreach ($items as [$route, $icon, $label])
@@ -47,14 +47,14 @@
 
 <header class="no-print sticky top-0 z-20 flex items-center gap-3 border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
     <a href="{{ route('home') }}" class="flex items-center gap-2">
-        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 font-extrabold text-white">{{ mb_substr(__('app.brand'), 0, 1) }}</span>
+        <span class="bg-brand-gradient flex h-9 w-9 items-center justify-center rounded-xl font-extrabold text-white">{{ mb_substr(__('app.brand'), 0, 1) }}</span>
         <span class="text-xl font-extrabold">{{ __('app.brand') }}</span>
     </a>
     <div class="ms-auto"><x-lang-switch compact /></div>
 </header>
 @endunless
 
-<main @class(['pb-24 lg:pb-10', 'lg:ps-60' => ! $bare])>
+<main @class(['pb-24 lg:pb-10' => ! $landing, 'pb-16 lg:pb-0' => $landing, 'lg:ps-60' => ! $bare && ! $landing])>
     <div x-data="connection" x-show="! online" x-cloak role="status" class="flex items-center gap-2 bg-slate-800 px-4 py-2 text-sm text-white">
         <x-svg-icon name="cloud-off" :size="16" />{{ __('app.offline.bar') }}
     </div>

@@ -10,16 +10,40 @@
 
 @theme {
     --font-sans: 'Vazirmatn Variable', 'Noto Sans Arabic', ui-sans-serif, system-ui, sans-serif;
-    --color-brand-50: #F0FDFA;
-    --color-brand-100: #CCFBF1;
-    --color-brand-300: #5EEAD4;
-    --color-brand-600: #0F766E;
-    --color-brand-700: #115E59;
-    --color-brand-900: #134E4A;
-    --color-ground: #F4F7F7;
+    /* Violet → cyan, in the spirit of modern ed-tech sites */
+    --color-brand-50: #F4F2FF;
+    --color-brand-100: #E9E5FF;
+    --color-brand-200: #D6CFFF;
+    --color-brand-300: #B3A6FF;
+    --color-brand-500: #7B6CF6;
+    --color-brand-600: #5B4CE6;
+    --color-brand-700: #4A3CC9;
+    --color-brand-900: #251C6B;
+    --color-accent-400: #38C7EE;
+    --color-accent-500: #19B2E0;
+    --color-ink: #0B1026;
+    --color-ground: #F7F8FC;
 }
 
 [x-cloak] { display: none !important; }
+
+/* ---- Brand helpers (all CSS: no images, light on mobile data) ---- */
+.bg-brand-gradient { background-image: linear-gradient(90deg, #6D5DFC, #22C3E6); }
+.text-gradient { background-image: linear-gradient(90deg, #6D5DFC, #22C3E6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.marker { background-image: linear-gradient(90deg, #DCD6FF, #F7D6F0); border-radius: .5rem; padding: 0 .3em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.sky {
+    background:
+        radial-gradient(60% 45% at 15% 20%, rgba(255,255,255,.28), transparent 60%),
+        radial-gradient(40% 35% at 85% 30%, rgba(255,255,255,.22), transparent 60%),
+        radial-gradient(70% 50% at 50% 110%, rgba(186,214,255,.9), transparent 70%),
+        linear-gradient(180deg, #2E2A93 0%, #4B4FD8 38%, #6E8FF0 72%, #A9C6FA 100%);
+}
+.glass { background: rgba(255,255,255,.12); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,.22); }
+.glass-light { background: rgba(255,255,255,.82); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid rgba(15,23,42,.06); }
+.rings { background-image: repeating-radial-gradient(circle at 0% 35%, transparent 0 46px, rgba(91,76,230,.07) 47px 48px); }
+.shadow-soft { box-shadow: 0 1px 2px rgba(16,24,40,.04), 0 12px 32px -12px rgba(30,27,75,.18); }
+.btn-primary { background-image: linear-gradient(90deg, #6D5DFC, #22C3E6); color: #fff; box-shadow: 0 10px 24px -10px rgba(91,76,230,.7); }
+.btn-primary:hover { filter: brightness(1.05); }
 
 html { -webkit-tap-highlight-color: transparent; }
 body { line-height: 1.7; }

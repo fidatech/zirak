@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Course;
+use App\Models\Lesson;
 use App\Services\ProgressService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -18,7 +19,13 @@ class HomeController extends Controller
         if (! $user) {
             $featured = Course::published()->with('category')->orderByDesc('is_featured')->latest('published_at')->take(6)->get();
 
-            return view('home.guest', compact('categories', 'featured'));
+            $stats = [
+                'courses' => Course::published()->count(),
+                'lessons' => Lesson::whereHas('chapter.course', fn ($q) => $q->published())->count(),
+                'subjects' => $categories->where('courses_count', '>', 0)->count(),
+            ];
+
+            return view('home.guest', compact('categories', 'featured', 'stats'));
         }
 
         $myCourses = $user->courses()->with('category')->latest('enrollments.updated_at')->get()
