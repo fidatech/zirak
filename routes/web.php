@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BunnyWebhookController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\ChapterController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\TeachController;
 use App\Http\Controllers\TelegramAuthController;
 use App\Http\Controllers\TelegramWebhookController;
 use App\Http\Controllers\TutorController;
+use App\Http\Controllers\VideoUploadController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -32,6 +34,9 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::post('/video-uploads/lessons/{lesson}', [VideoUploadController::class, 'start'])->middleware('throttle:30,1')->name('video.start');
+    Route::post('/video-uploads/lessons/{lesson}/finished', [VideoUploadController::class, 'finished'])->name('video.finished');
+    Route::get('/video-uploads/lessons/{lesson}', [VideoUploadController::class, 'status'])->name('video.status');
     Route::get('/become-a-teacher', [TeachController::class, 'apply'])->name('teach.apply');
     Route::post('/become-a-teacher', [TeachController::class, 'submit'])->middleware('throttle:5,60')->name('teach.submit');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -67,6 +72,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::post('/webhooks/telegram', TelegramWebhookController::class)->name('webhooks.telegram');
+Route::post('/webhooks/bunny', BunnyWebhookController::class)->name('webhooks.bunny');
 Route::post('/webhooks/hesabpay', [PaymentController::class, 'hesabpayWebhook'])->name('webhooks.hesabpay');
 
 Route::get('/teachers/{teacher}', [TeachController::class, 'show'])->whereNumber('teacher')->name('teachers.show');

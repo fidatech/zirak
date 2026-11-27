@@ -16,9 +16,20 @@ class PayoutResource extends Resource
 {
     protected static ?string $model = TeacherPayout::class;
 
-    protected static ?string $modelLabel = 'payout';
+    public static function getModelLabel(): string
+    {
+        return __('teach.model.payout');
+    }
 
-    protected static ?string $navigationLabel = 'Payouts';
+    public static function getPluralModelLabel(): string
+    {
+        return __('teach.model.payouts');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('teach.nav.payouts');
+    }
 
     protected static ?string $slug = 'payouts';
 
@@ -41,13 +52,13 @@ class PayoutResource extends Resource
         return $table
             ->defaultSort('paid_on', 'desc')
             ->columns([
-                TextColumn::make('paid_on')->label('Date')->date(),
-                TextColumn::make('amount')->weight('bold')->formatStateUsing(fn (TeacherPayout $p) => TeacherEarnings::money($p->amount, $p->currency)),
-                TextColumn::make('method')->formatStateUsing(fn ($state) => TeacherPayout::METHODS[$state] ?? $state),
-                TextColumn::make('reference')->placeholder('—'),
-                TextColumn::make('note')->placeholder('—')->wrap(),
+                TextColumn::make('paid_on')->label(__('teach.payouts.date'))->formatStateUsing(fn ($state) => n($state?->translatedFormat('j F Y'))),
+                TextColumn::make('amount')->label(__('teach.payouts.amount'))->weight('bold')->formatStateUsing(fn (TeacherPayout $p) => TeacherEarnings::money($p->amount, $p->currency)),
+                TextColumn::make('method')->label(__('teach.payouts.method'))->formatStateUsing(fn ($state) => __('teach.payouts.method_'.$state)),
+                TextColumn::make('reference')->label(__('teach.payouts.reference'))->placeholder('—'),
+                TextColumn::make('note')->label(__('teach.payouts.note'))->placeholder('—')->wrap(),
             ])
-            ->emptyStateHeading('No payouts yet');
+            ->emptyStateHeading(__('teach.payouts.empty'));
     }
 
     public static function getPages(): array

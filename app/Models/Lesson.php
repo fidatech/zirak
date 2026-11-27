@@ -13,7 +13,7 @@ class Lesson extends Model
 
     protected function casts(): array
     {
-        return ['is_preview' => 'boolean'];
+        return ['is_preview' => 'boolean', 'video_status_at' => 'datetime'];
     }
 
     public function chapter(): BelongsTo

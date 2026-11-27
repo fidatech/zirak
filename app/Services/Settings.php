@@ -21,6 +21,8 @@ class Settings
         'hesabpay_driver' => ['services.hesabpay.driver', 'string', false],
         'hesabpay_api_key' => ['services.hesabpay.api_key', 'string', true],
         'bunny_library_id' => ['services.bunny.library_id', 'string', false],
+        'bunny_api_key' => ['services.bunny.api_key', 'string', true],
+        'bunny_read_only_key' => ['services.bunny.read_only_key', 'string', true],
         'tutor_enabled' => ['zirak.tutor.enabled', 'bool', false],
         'tutor_driver' => ['zirak.tutor.driver', 'string', false],
         'tutor_model' => ['zirak.tutor.model', 'string', false],

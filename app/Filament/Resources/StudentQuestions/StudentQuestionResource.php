@@ -22,9 +22,20 @@ class StudentQuestionResource extends Resource
 {
     protected static ?string $model = TutorMessage::class;
 
-    protected static ?string $modelLabel = 'student question';
+    public static function getModelLabel(): string
+    {
+        return __('teach.model.student_question');
+    }
 
-    protected static ?string $navigationLabel = 'Student questions';
+    public static function getPluralModelLabel(): string
+    {
+        return __('teach.model.student_questions');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('teach.nav.questions');
+    }
 
     protected static ?string $slug = 'student-questions';
 
@@ -57,38 +68,39 @@ class StudentQuestionResource extends Resource
         return $table
             ->defaultSort('created_at', 'desc')
             ->columns([
-                TextColumn::make('content')->label('Question')->wrap()->limit(160)->searchable(),
-                TextColumn::make('course.title')->label('Course')->limit(30),
-                TextColumn::make('lesson.title')->label('Lesson')->limit(30)->placeholder('—'),
-                TextColumn::make('ai_answer')->label('AI answer')->wrap()->limit(160)
+                TextColumn::make('content')->label(__('teach.sq.question'))->wrap()->limit(160)->searchable(),
+                TextColumn::make('course.title')->label(__('teach.sq.course'))->limit(30),
+                TextColumn::make('lesson.title')->label(__('teach.sq.lesson'))->limit(30)->placeholder('—'),
+                TextColumn::make('ai_answer')->label(__('teach.sq.ai_answer'))->wrap()->limit(160)
                     ->getStateUsing(fn (TutorMessage $record) => $record->answers->firstWhere('role', 'ai')?->content),
-                TextColumn::make('status')->badge()
-                    ->getStateUsing(fn (TutorMessage $record) => $record->answered_at ? 'answered' : ($record->escalated_at ? 'waiting' : 'AI only'))
+                TextColumn::make('status')->label(__('teach.sq.status'))->badge()
+                    ->getStateUsing(fn (TutorMessage $record) => $record->answered_at ? 'answered' : ($record->escalated_at ? 'waiting' : 'ai_only'))
+                    ->formatStateUsing(fn ($state) => __('teach.sq.'.$state))
                     ->color(fn ($state) => match ($state) {
                         'waiting' => 'warning', 'answered' => 'success', default => 'gray'
                     }),
-                TextColumn::make('locale')->label('Lang')->badge(),
-                TextColumn::make('created_at')->label('Asked')->since()->sortable(),
+                TextColumn::make('locale')->label(__('teach.sq.lang'))->badge(),
+                TextColumn::make('created_at')->label(__('teach.sq.asked'))->since()->sortable(),
             ])
             ->filters([
-                TernaryFilter::make('waiting')->label('Waiting for a teacher')->default(true)
+                TernaryFilter::make('waiting')->label(__('teach.sq.filter_waiting'))->default(true)
                     ->queries(
                         true: fn (Builder $q) => $q->whereNotNull('escalated_at')->whereNull('answered_at'),
                         false: fn (Builder $q) => $q,
                         blank: fn (Builder $q) => $q,
                     ),
-                SelectFilter::make('course')->relationship('course', 'title'),
+                SelectFilter::make('course')->label(__('teach.sq.course'))->relationship('course', 'title'),
             ])
             ->recordActions([
-                Action::make('answer')->label('Answer')->icon('heroicon-o-pencil-square')->color('primary')
+                Action::make('answer')->label(__('teach.sq.answer'))->icon('heroicon-o-pencil-square')->color('primary')
                     ->visible(fn (TutorMessage $record) => $record->answered_at === null)
                     ->modalDescription(fn (TutorMessage $record) => $record->content)
                     ->schema([
-                        Textarea::make('answer')->label('Your answer (shown to the student in the tutor chat)')->required()->rows(6)->maxLength(3000),
+                        Textarea::make('answer')->label(__('teach.sq.answer_label'))->required()->rows(6)->maxLength(3000),
                     ])
                     ->action(function (TutorMessage $record, array $data) {
                         app(TutorService::class)->teacherAnswer($record, auth()->user(), $data['answer']);
-                        Notification::make()->title('Answer sent to the student')->success()->send();
+                        Notification::make()->title(__('teach.sq.answer_sent'))->success()->send();
                     }),
             ]);
     }

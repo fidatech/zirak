@@ -6,5 +6,13 @@ use Filament\Pages\Dashboard as BaseDashboard;
 
 class Dashboard extends BaseDashboard
 {
-    protected static ?string $title = 'Teacher dashboard';
+    public function getTitle(): string
+    {
+        return __('teach.nav.dashboard');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('teach.nav.dashboard');
+    }
 }

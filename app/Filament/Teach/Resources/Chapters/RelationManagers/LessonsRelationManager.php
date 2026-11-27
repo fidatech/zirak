@@ -16,7 +16,7 @@ class LessonsRelationManager extends AdminLessons
         return $schema->components(collect($schema->getComponents())->map(function ($component) {
             if ($component instanceof TextInput && $component->getName() === 'video_id') {
                 return $component->disabled()->dehydrated(false)
-                    ->helperText('Send your video file to the Zirak team; they upload it and fill in this ID.');
+                    ->helperText(__('teach.video.use_button'));
             }
 
             return $component;

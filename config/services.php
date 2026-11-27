@@ -46,6 +46,10 @@ return [
     'bunny' => [
         // Bunny Stream video library ID (videos are embedded by their video ID)
         'library_id' => env('BUNNY_LIBRARY_ID'),
+        // Library API key (Stream → library → API): creates videos and signs uploads. Server only.
+        'api_key' => env('BUNNY_API_KEY'),
+        // Library read-only API key: verifies Bunny's webhook signatures.
+        'read_only_key' => env('BUNNY_READ_ONLY_KEY'),
     ],
 
     'hesabpay' => [

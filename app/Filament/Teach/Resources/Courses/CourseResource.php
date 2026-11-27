@@ -23,7 +23,20 @@ class CourseResource extends Resource
 {
     protected static ?string $model = Course::class;
 
-    protected static ?string $navigationLabel = 'My courses';
+    public static function getModelLabel(): string
+    {
+        return __('teach.model.course');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('teach.model.courses');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('teach.nav.courses');
+    }
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
@@ -41,12 +54,7 @@ class CourseResource extends Resource
 
     public static function statusLabel(CourseStatus $status): string
     {
-        return match ($status) {
-            CourseStatus::Draft => 'Draft',
-            CourseStatus::Review => 'Waiting for review',
-            CourseStatus::Published => 'Published',
-            CourseStatus::Archived => 'Archived',
-        };
+        return __('teach.status.'.$status->value);
     }
 
     public static function table(Table $table): Table
@@ -54,19 +62,19 @@ class CourseResource extends Resource
         return $table
             ->defaultSort('updated_at', 'desc')
             ->columns([
-                TextColumn::make('title')->searchable()->wrap(),
-                TextColumn::make('status')->badge()
+                TextColumn::make('title')->label(__('teach.course.title'))->searchable()->wrap(),
+                TextColumn::make('status')->label(__('teach.course.status'))->badge()
                     ->formatStateUsing(fn (CourseStatus $state) => static::statusLabel($state))
                     ->color(fn (CourseStatus $state) => match ($state) {
                         CourseStatus::Published => 'success', CourseStatus::Review => 'warning', default => 'gray'
                     }),
-                TextColumn::make('chapters_count')->counts('chapters')->label('Chapters'),
-                TextColumn::make('enrollments_count')->counts('enrollments')->label('Students'),
-                TextColumn::make('updated_at')->label('Last change')->since(),
+                TextColumn::make('chapters_count')->counts('chapters')->label(__('teach.course.chapters'))->formatStateUsing(fn ($state) => n($state)),
+                TextColumn::make('enrollments_count')->counts('enrollments')->label(__('teach.course.students'))->formatStateUsing(fn ($state) => n($state)),
+                TextColumn::make('updated_at')->label(__('teach.course.last_change'))->since(),
             ])
             ->recordActions([EditAction::make()])
-            ->emptyStateHeading('No courses yet')
-            ->emptyStateDescription('Create your first course, add chapters with lessons and questions, then send it to the Zirak team for review.');
+            ->emptyStateHeading(__('teach.course.empty_heading'))
+            ->emptyStateDescription(__('teach.course.empty_text'));
     }
 
     public static function getRelations(): array

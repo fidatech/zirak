@@ -18,19 +18,21 @@ class TeacherStats extends StatsOverviewWidget
         $earnings = app(TeacherEarnings::class);
         $summary = $earnings->summary($teacher);
         $month = $earnings->thisMonth($teacher);
-        $fmt = fn ($rows, $key) => $rows->map(fn ($r, $cur) => TeacherEarnings::money((int) (is_array($r) ? $r[$key] : $r->{$key}), $cur))->implode(' · ') ?: '0 AFN';
+        $fmt = fn ($rows, $key) => $rows->map(fn ($r, $cur) => TeacherEarnings::money((int) (is_array($r) ? $r[$key] : $r->{$key}), $cur))->implode(' · ') ?: TeacherEarnings::money(0, 'AFN');
 
         $courses = $teacher->taughtCourses();
         $students = Enrollment::whereIn('course_id', $teacher->taughtCourses()->select('id'))->distinct('user_id')->count('user_id');
 
         return [
-            Stat::make('Balance to be paid to you', $fmt($summary, 'balance'))
-                ->description('Earned '.$fmt($summary, 'earned').' · paid out '.$fmt($summary, 'paid_out')),
-            Stat::make('Earned this month', $fmt($month, 'total'))
-                ->description($month->sum('sales').' sales'),
-            Stat::make('Students', number_format($students))
-                ->description((clone $courses)->where('status', CourseStatus::Published)->count().' published · '
-                    .(clone $courses)->where('status', CourseStatus::Review)->count().' waiting for review'),
+            Stat::make(__('teach.stats.balance'), $fmt($summary, 'balance'))
+                ->description(__('teach.stats.balance_desc', ['earned' => $fmt($summary, 'earned'), 'paid' => $fmt($summary, 'paid_out')])),
+            Stat::make(__('teach.stats.month'), $fmt($month, 'total'))
+                ->description(__('teach.stats.month_desc', ['n' => n($month->sum('sales'))])),
+            Stat::make(__('teach.stats.students'), n(number_format($students)))
+                ->description(__('teach.stats.students_desc', [
+                    'published' => n((clone $courses)->where('status', CourseStatus::Published)->count()),
+                    'review' => n((clone $courses)->where('status', CourseStatus::Review)->count()),
+                ])),
         ];
     }
 }

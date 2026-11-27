@@ -19,6 +19,11 @@ class ChapterResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false;
 
+    public static function getModelLabel(): string
+    {
+        return __('teach.model.chapter');
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->whereHas('course', fn (Builder $q) => $q->where('teacher_id', auth()->id()));
@@ -28,8 +33,8 @@ class ChapterResource extends Resource
     {
         // No course picker: a chapter can't be moved to another course from here.
         return $schema->components([
-            TextInput::make('title')->required()->maxLength(255)->columnSpanFull(),
-            Textarea::make('summary')->rows(2)->columnSpanFull(),
+            TextInput::make('title')->label(__('teach.chapter.title'))->required()->maxLength(255)->columnSpanFull(),
+            Textarea::make('summary')->label(__('teach.chapter.summary'))->rows(2)->columnSpanFull(),
         ]);
     }
 
