@@ -143,7 +143,7 @@ cd ~/zirak && php artisan schedule:run >> /dev/null 2>&1
 You don't need to edit `.env` for these. Log in to `https://zirak.af/admin` → **Settings**:
 
 - **Payments (HesabPay):** choose *Sandbox*, paste the test API key and save. Switch to *Live* with the live key when HesabPay approves you.
-- **Videos (Bunny Stream):** the video library ID.
+- **Videos (Bunny Stream):** the video library ID, the library **API key** (teachers upload videos with it; it never reaches the browser) and the **read-only API key**. In Bunny → Stream → your library → *Webhook*, paste the webhook URL shown on the Settings page (`https://zirak.af/webhooks/bunny`). Without the webhook, videos still go live within 5 minutes through the cron job.
 - **AI tutor:** choose *Claude*, paste the Anthropic API key and press **Save and send a test question**.
 - **Telegram:** in Telegram open **@BotFather** → `/newbot` and copy the token. Paste it here and press **Save and connect bot**. The username, the webhook secret, the webhook and the bot's command menu in Dari, Pashto and English are all set up for you.
 

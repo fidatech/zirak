@@ -13,6 +13,9 @@ return [
     'default_locale' => env('ZIRAK_DEFAULT_LOCALE', 'prs'),
 
     // Minimum chapter test score (%) to pass.
+    // Teacher's share of each sale, in percent (can be changed per course in admin).
+    'teacher_share' => (int) env('ZIRAK_TEACHER_SHARE', 70),
+
     'pass_mark' => (int) env('ZIRAK_PASS_MARK', 70),
 
     // log = write codes to storage/logs (development). Add a real SMS provider later.

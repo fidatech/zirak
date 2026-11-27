@@ -12,7 +12,7 @@
                 <div class="border-b-2 border-slate-200 px-10 pb-1 text-3xl font-bold">{{ $certificate->name_on_certificate }}</div>
                 <div class="text-slate-700">{{ __('app.cert.for_course') }} <strong>{{ $certificate->course->title }}</strong></div>
                 <div class="text-sm text-slate-600">
-                    @if ($certificate->score !== null){{ __('app.cert.score') }}: {{ pct($certificate->score) }} · @endif{{ __('app.cert.date') }}: {{ $certificate->issued_at->translatedFormat('j F Y') }}
+                    @if ($certificate->score !== null){{ __('app.cert.score') }}: {{ pct($certificate->score) }}{{ sep() }}@endif{{ __('app.cert.date') }}: {{ $certificate->issued_at->translatedFormat('j F Y') }}
                 </div>
                 <div class="mt-4 flex flex-col items-center gap-1 text-xs text-slate-500" dir="ltr">
                     <span>{{ __('app.cert.code') }}: <strong>{{ $certificate->code }}</strong></span>

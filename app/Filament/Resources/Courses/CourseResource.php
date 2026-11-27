@@ -22,6 +22,18 @@ class CourseResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
+    public static function getNavigationBadge(): ?string
+    {
+        $count = Course::where('status', 'review')->count();
+
+        return $count ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Waiting for review';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return CourseForm::configure($schema);

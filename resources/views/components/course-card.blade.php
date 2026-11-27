@@ -5,10 +5,10 @@
         <x-subject-art :category="$course->category" :size="64" />
     </div>
     <div class="flex flex-1 flex-col gap-1 p-4">
-        <div class="text-xs font-bold" style="color: {{ $dark }}">{{ $course->category->name() }} · {{ $course->level->label() }}</div>
+        <div class="text-xs font-bold" style="color: {{ $dark }}">{{ $course->category->name() }}{{ sep() }}{{ $course->level->label() }}</div>
         <div class="font-bold leading-relaxed">{{ $course->title }}</div>
         <div class="text-sm text-slate-600">
-            @isset($course->lessons_count){{ n($course->lessons_count) }} {{ __('app.lessons') }} · @endisset{{ $course->languageLabel() }}
+            @isset($course->lessons_count){{ n($course->lessons_count) }} {{ __('app.lessons') }}{{ sep() }}@endisset{{ $course->languageLabel() }}
         </div>
         <div class="mt-auto pt-2 text-sm font-bold">
             @if ($course->is_free)

@@ -17,9 +17,10 @@ class CourseController extends Controller
 {
     public function show(Request $request, Course $course, ProgressService $progress): View
     {
-        abort_unless($course->status === CourseStatus::Published || $request->user()?->isAdmin(), 404);
+        abort_unless($course->status === CourseStatus::Published || $request->user()?->isAdmin()
+            || ($course->teacher_id && $course->teacher_id === $request->user()?->id), 404); // teachers can preview their own drafts
 
-        $course->load(['category', 'chapters.lessons']);
+        $course->load(['category', 'chapters.lessons', 'teacher']);
         $user = $request->user();
         $enrolled = $user?->isEnrolledIn($course) ?? false;
 

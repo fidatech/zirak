@@ -28,7 +28,7 @@
                 <div class="flex items-center gap-2 font-extrabold"><x-svg-icon name="send" :size="20" class="text-[#229ED9]" />{{ __('app.telegram.section') }}</div>
                 @error('telegram')<div class="rounded-xl bg-red-50 p-3 text-sm text-red-800">{{ $message }}</div>@enderror
                 @if ($user->telegram_id)
-                    <div class="text-sm text-slate-700">{{ __('app.telegram.connected') }}@if($user->telegram_username) · <bdi dir="ltr">{{ '@'.$user->telegram_username }}</bdi>@endif</div>
+                    <div class="text-sm text-slate-700">{{ __('app.telegram.connected') }}@if($user->telegram_username){{ sep() }}<bdi dir="ltr">{{ '@'.$user->telegram_username }}</bdi>@endif</div>
                     <form method="POST" action="{{ route('profile.telegram.reminders') }}" class="flex items-center gap-2 text-sm">
                         @csrf @method('PUT')
                         <input type="hidden" name="enabled" value="{{ $user->telegram_reminders ? 0 : 1 }}">
@@ -47,6 +47,11 @@
             </section>
         @endif
         <x-offline-list />
+        @if ($user->isTeacher())
+            <a href="/teach" class="rounded-2xl border border-brand-600 bg-brand-50 p-4 font-bold text-brand-700">{{ __('app.teach.open_area') }}</a>
+        @else
+            <a href="{{ route('teach.apply') }}" class="rounded-2xl border border-slate-200 bg-white p-4 font-bold">{{ __('app.teach.cta') }}</a>
+        @endif
         <a href="{{ route('certificates.index') }}" class="rounded-2xl border border-slate-200 bg-white p-4 font-bold">{{ __('app.cert.mine') }}</a>
         <form method="POST" action="{{ route('logout') }}" data-logout>@csrf<button class="w-full rounded-2xl border border-slate-200 bg-white p-4 text-start text-slate-700">{{ __('app.nav.logout') }}</button></form>
     </div>

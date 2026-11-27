@@ -36,7 +36,9 @@ class EnrollmentService
                 'paid_at' => now(),
                 'gateway_transaction_id' => $transactionId ?? $order->gateway_transaction_id,
                 'failure_reason' => null,
-            ])->save();
+            ]);
+            TeacherEarnings::snapshot($order);
+            $order->save();
 
             $order->coupon?->increment('used_count');
             $this->enroll($order->user, $order->course, 'order', $order);

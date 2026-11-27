@@ -7,7 +7,7 @@
             <div class="flex flex-1 items-center gap-3">
                 <a href="{{ route('courses.show', $course) }}" aria-label="{{ __('app.back') }}" class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-700"><x-svg-icon name="back" :size="18" /></a>
                 <div class="min-w-0">
-                    <div class="truncate text-xs text-slate-600">{{ $course->title }} · {{ __('app.chapter.chapter_n', ['n' => n($chapterIndex + 1)]) }}</div>
+                    <div class="truncate text-xs text-slate-600">{{ $course->title }}{{ sep() }}{{ __('app.chapter.chapter_n', ['n' => n($chapterIndex + 1)]) }}</div>
                     <div class="truncate font-extrabold">{{ $chapter->title }}</div>
                 </div>
             </div>
@@ -27,7 +27,7 @@
                         @php($done = [$state['learn_done'], $state['practice_done'], $state['passed']][$i])
                         <a href="{{ route('chapters.show', [$course, $chapter, $t]) }}" @if($tab === $t) aria-current="page" @endif @class(['flex items-center justify-center gap-1 rounded-lg px-4 py-2', 'bg-brand-600 font-bold text-white' => $tab === $t, 'text-slate-700' => $tab !== $t])>
                             @if($done)<x-svg-icon name="check" :size="14" />@elseif($t === 'test' && ! $state['test_unlocked'])<x-svg-icon name="lock" :size="14" />@endif
-                            {{ n($i + 1) }} · {{ __('app.chapter.'.$t) }}
+                            {{ n($i + 1) }}{{ sep() }}{{ __('app.chapter.'.$t) }}
                         </a>
                     @endforeach
                 </nav>
@@ -95,7 +95,7 @@
                 </div>
                 <div class="flex w-full flex-col gap-4 lg:w-80 lg:shrink-0">
                 <aside class="rounded-2xl border border-slate-200 bg-white p-3">
-                    <div class="px-2 pb-2 font-extrabold">{{ __('app.chapter.learn') }} · {{ n($state['lessons_done']) }}/{{ n($state['lessons_total']) }}</div>
+                    <div class="px-2 pb-2 font-extrabold">{{ __('app.chapter.learn') }}{{ sep() }}{{ n($state['lessons_done']) }}/{{ n($state['lessons_total']) }}</div>
                     @foreach ($lessons as $i => $l)
                         <a href="{{ route('chapters.show', [$course, $chapter, 'learn', 'lesson' => $l->id]) }}" @if($lesson?->is($l)) aria-current="page" @endif @class(['flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm', 'bg-brand-100 font-bold text-brand-600' => $lesson?->is($l), 'text-slate-700 hover:bg-slate-50' => ! $lesson?->is($l)])>
                             @if (in_array($l->id, $completed))
