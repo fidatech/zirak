@@ -43,6 +43,8 @@ class TeacherTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // Livewire::test() calls skip the panels' language middleware, so pick the language here (production default is Dari).
+        app()->setLocale('en');
         $this->admin = User::factory()->create(['role' => UserRole::Admin]);
         $this->teacher = User::factory()->create(['role' => UserRole::Instructor, 'name' => 'Maryam Ahmadi', 'nickname' => 'Ustad Maryam', 'phone' => '+93791112233', 'locale' => 'en']);
         $this->otherTeacher = User::factory()->create(['role' => UserRole::Instructor, 'locale' => 'en']);
@@ -301,9 +303,17 @@ class TeacherTest extends TestCase
         // English.
         $this->get('/teach/courses?lang=en')->assertSee('dir="ltr"', false)->assertSee('New course');
 
-        // Admin stays in English whatever the admin's own language is.
+    }
+
+    public function test_admin_stays_english_even_when_the_site_default_is_dari(): void
+    {
+        config(['app.locale' => 'prs']); // as in production (.env.example)
+        app()->setLocale('prs');
         $this->admin->update(['locale' => 'ps']);
-        $this->actingAs($this->admin)->get('/admin/courses')->assertOk()->assertSee('dir="ltr"', false)->assertDontSee('زما کورسونه');
+        $this->course($this->teacher, ['title' => 'Logo design']);
+
+        $this->actingAs($this->admin)->get('/admin/courses')->assertOk()
+            ->assertSee('dir="ltr"', false)->assertSee('New course')->assertDontSee('ایجاد');
     }
 
     public function test_teacher_language_files_have_the_same_keys(): void

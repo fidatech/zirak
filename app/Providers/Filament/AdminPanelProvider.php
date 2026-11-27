@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Support\LocalAvatarProvider;
+use App\Http\Middleware\UseEnglish;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -54,6 +55,7 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->middleware([UseEnglish::class], isPersistent: true)
             ->authMiddleware([
                 Authenticate::class,
             ]);
