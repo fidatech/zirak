@@ -1,4 +1,5 @@
-<x-layouts.app :title="$teacher->publicName()">
+<x-public-page :title="$teacher->publicName()">
+    @guest<div class="h-24"></div>@endguest
     <div class="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-6 lg:px-8">
         <section class="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 sm:flex-row sm:items-center">
             <span class="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-700"><x-svg-icon name="user" :size="40" /></span>
@@ -25,4 +26,4 @@
             @endif
         </section>
     </div>
-</x-layouts.app>
+</x-public-page>

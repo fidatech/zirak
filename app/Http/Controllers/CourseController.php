@@ -6,6 +6,7 @@ use App\Enums\CourseStatus;
 use App\Models\Certificate;
 use App\Models\Coupon;
 use App\Models\Course;
+use App\Models\Question;
 use App\Services\Payments\CheckoutService;
 use App\Services\ProgressService;
 use Illuminate\Http\RedirectResponse;
@@ -31,6 +32,10 @@ class CourseController extends Controller
             'certificate' => $enrolled ? Certificate::where('user_id', $user->id)->where('course_id', $course->id)->first() : null,
             'lessonCount' => $course->chapters->sum(fn ($c) => $c->lessons->count()),
             'minutes' => (int) ceil($course->chapters->sum(fn ($c) => $c->lessons->sum('duration_seconds')) / 60),
+            'students' => $course->enrollments()->count(),
+            'questionCount' => Question::whereIn('chapter_id', $course->chapters->pluck('id'))->count(),
+            'related' => Course::published()->forCards()->where('category_id', $course->category_id)->whereKeyNot($course->id)
+                ->orderByDesc('is_featured')->take(4)->get(),
         ]);
     }
 

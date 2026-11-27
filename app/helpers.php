@@ -46,3 +46,17 @@ if (! function_exists('sep')) {
         return text_dir() === 'rtl' ? ' – ' : ' · ';
     }
 }
+
+if (! function_exists('duration')) {
+    /** "2 h 15 min" / "۲ ساعت و ۱۵ دقیقه" from minutes. */
+    function duration(int $minutes): string
+    {
+        $h = intdiv($minutes, 60);
+        $m = $minutes % 60;
+        if ($h === 0) {
+            return __('app.time.m', ['n' => n(max(1, $m))]);
+        }
+
+        return $m === 0 ? __('app.time.h', ['n' => n($h)]) : __('app.time.hm', ['h' => n($h), 'm' => n($m)]);
+    }
+}

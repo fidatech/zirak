@@ -80,4 +80,12 @@ class Course extends Model
     {
         return (int) ceil($this->lessons()->sum('duration_seconds') / 60);
     }
+
+    /** What course cards show: teacher, lesson count and length, student count. */
+    public function scopeForCards($query)
+    {
+        return $query->with(['category', 'teacher'])
+            ->withCount(['lessons', 'enrollments'])
+            ->withSum('lessons', 'duration_seconds');
+    }
 }

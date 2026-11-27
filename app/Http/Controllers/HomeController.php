@@ -17,7 +17,7 @@ class HomeController extends Controller
         $user = $request->user();
 
         if (! $user) {
-            $featured = Course::published()->with('category')->orderByDesc('is_featured')->latest('published_at')->take(6)->get();
+            $featured = Course::published()->forCards()->orderByDesc('is_featured')->latest('published_at')->take(6)->get();
 
             $stats = [
                 'courses' => Course::published()->count(),
@@ -32,7 +32,7 @@ class HomeController extends Controller
             ->map(fn (Course $c) => ['course' => $c, 'state' => $progress->courseState($user, $c)]);
 
         $next = $myCourses->first(fn ($row) => $row['state']['next'] !== null);
-        $featured = Course::published()->with('category')->whereNotIn('id', $myCourses->pluck('course.id'))
+        $featured = Course::published()->forCards()->whereNotIn('id', $myCourses->pluck('course.id'))
             ->orderByDesc('is_featured')->take(4)->get();
 
         return view('home.dashboard', [
