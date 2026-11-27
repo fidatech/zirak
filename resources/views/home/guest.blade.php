@@ -17,7 +17,7 @@
             <p class="max-w-2xl text-base leading-8 text-white/90 sm:text-lg">{{ $l('hero_text') }}</p>
             <div class="flex flex-wrap justify-center gap-3">
                 <a href="{{ route('catalog') }}" class="rounded-xl bg-white px-6 py-3.5 font-bold text-ink shadow-soft hover:bg-slate-50">{{ __('app.home.browse') }}</a>
-                <a href="{{ route('login') }}" class="btn-primary rounded-xl px-7 py-3.5 font-bold">{{ __('app.home.guest_cta') }}</a>
+                <a href="{{ route('register') }}" class="btn-primary rounded-xl px-7 py-3.5 font-bold">{{ __('app.home.guest_cta') }}</a>
             </div>
             <p class="text-sm text-white/80">{{ $l('hero_note') }}</p>
 
@@ -183,7 +183,7 @@
                         <div aria-hidden="true" class="absolute -end-16 -top-16 h-56 w-56 rounded-full bg-white/15 blur-2xl"></div>
                         <h2 class="relative text-3xl font-black leading-[1.4] sm:text-4xl">{{ $l('teach_title') }}<br><span class="rounded-xl bg-white px-2 text-brand-700">{{ $l('teach_highlight') }}</span></h2>
                         <p class="relative mt-4 max-w-xl text-lg leading-8 text-white/90">{{ $l('teach_text', ['share' => pct(config('zirak.teacher_share'))]) }}</p>
-                        <a href="{{ route('teach.apply') }}" class="relative mt-6 inline-block rounded-xl bg-white px-6 py-3.5 font-bold text-ink">{{ $l('teach_cta') }}</a>
+                        <a href="{{ auth()->check() ? route('teach.apply') : route('register', ['as' => 'teacher']) }}" class="relative mt-6 inline-block rounded-xl bg-white px-6 py-3.5 font-bold text-ink">{{ $l('teach_cta') }}</a>
                     </div>
                 </section>
             </div>
@@ -225,7 +225,7 @@
             <h2 class="text-3xl font-black leading-[1.4] sm:text-5xl">{{ $l('final_title') }}</h2>
             <p class="text-lg text-white/90">{{ $l('final_text') }}</p>
             <div class="flex flex-wrap justify-center gap-3">
-                <a href="{{ route('login') }}" class="rounded-xl bg-white px-7 py-3.5 font-bold text-ink shadow-soft">{{ __('app.home.guest_cta') }}</a>
+                <a href="{{ route('register') }}" class="rounded-xl bg-white px-7 py-3.5 font-bold text-ink shadow-soft">{{ __('app.home.guest_cta') }}</a>
                 @if (app(\App\Services\Telegram\TelegramClient::class)->configured())
                     <a href="{{ route('login.telegram') }}" class="glass rounded-xl px-6 py-3.5 font-bold">{{ __('app.telegram.continue_with') }}</a>
                 @endif

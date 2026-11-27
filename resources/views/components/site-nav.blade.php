@@ -13,7 +13,7 @@
             <a href="{{ route('catalog') }}" class="opacity-90 hover:opacity-100">{{ __('app.nav.courses') }}</a>
             <a href="{{ route('home') }}#how" class="opacity-90 hover:opacity-100">{{ __('app.landing.nav_how') }}</a>
             <a href="{{ route('home') }}#tutor" class="opacity-90 hover:opacity-100">{{ __('app.landing.nav_tutor') }}</a>
-            <a href="{{ route('teach.apply') }}" class="opacity-90 hover:opacity-100">{{ __('app.landing.nav_teach') }}</a>
+            <a href="{{ auth()->check() ? route('teach.apply') : route('register', ['as' => 'teacher']) }}" class="opacity-90 hover:opacity-100">{{ __('app.landing.nav_teach') }}</a>
             <a href="{{ route('certificates.verify') }}" class="opacity-90 hover:opacity-100">{{ __('app.nav.verify') }}</a>
         </div>
         <div class="ms-auto flex items-center gap-2">
@@ -22,7 +22,7 @@
                 <a href="{{ route('home') }}" class="btn-primary rounded-xl px-4 py-2 text-sm font-bold">{{ __('app.nav.my_courses') }}</a>
             @else
                 <a href="{{ route('login') }}" class="hidden px-2 text-sm font-semibold sm:block">{{ __('app.nav.login') }}</a>
-                <a href="{{ route('login') }}" class="btn-primary rounded-xl px-4 py-2 text-sm font-bold">{{ __('app.home.guest_cta') }}</a>
+                <a href="{{ route('register') }}" class="btn-primary rounded-xl px-4 py-2 text-sm font-bold">{{ __('app.home.guest_cta') }}</a>
             @endauth
         </div>
     </nav>

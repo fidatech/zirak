@@ -90,7 +90,7 @@
                     <span class="hidden text-sm font-semibold xl:block">{{ $user->displayName() }}</span>
                 </a>
             @else
-                <a href="{{ route('login') }}" class="btn-primary rounded-xl px-4 py-2 text-sm font-bold">{{ __('app.home.guest_cta') }}</a>
+                <a href="{{ route('register') }}" class="btn-primary rounded-xl px-4 py-2 text-sm font-bold">{{ __('app.home.guest_cta') }}</a>
             @endauth
         </div>
     </div>

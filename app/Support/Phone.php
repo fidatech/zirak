@@ -19,7 +19,7 @@ class Phone
         if (str_starts_with($value, '00')) {
             $value = '+'.substr($value, 2);
         }
-        if (preg_match('/^0(7\d{8})$/', $value, $m)) {
+        if (preg_match('/^0?(7\d{8})$/', $value, $m)) { // 0790000000, or 790000000 typed after the +93 box
             $value = '+93'.$m[1];
         }
         if (preg_match('/^93(7\d{8})$/', $value, $m)) {

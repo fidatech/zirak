@@ -16,7 +16,7 @@
         </div>
         <div class="flex flex-col gap-3 text-sm">
             <div class="font-bold text-white">{{ __('app.landing.footer_zirak') }}</div>
-            <a href="{{ route('teach.apply') }}" class="hover:text-white">{{ __('app.landing.nav_teach') }}</a>
+            <a href="{{ auth()->check() ? route('teach.apply') : route('register', ['as' => 'teacher']) }}" class="hover:text-white">{{ __('app.landing.nav_teach') }}</a>
             <a href="{{ route('certificates.verify') }}" class="hover:text-white">{{ __('app.nav.verify') }}</a>
             <a href="{{ route('login') }}" class="hover:text-white">{{ __('app.nav.login') }}</a>
         </div>

@@ -74,4 +74,37 @@ class PhoneLoginTest extends TestCase
         $this->post('/login/code', ['code' => $this->lastCode()]);
         $this->assertAuthenticatedAs($user);
     }
+
+    public function test_login_and_signup_pages_render_in_every_language(): void
+    {
+        foreach (['prs', 'ps', 'en'] as $lang) {
+            $this->get('/login?lang='.$lang)->assertOk()->assertSee(__('app.auth.login_title', [], $lang))->assertSee(__('app.auth.tab_register', [], $lang));
+            $this->get('/register?lang='.$lang)->assertOk()->assertSee(__('app.auth.register_title', [], $lang))->assertSee(__('app.auth.as_teacher', [], $lang));
+        }
+    }
+
+    public function test_student_signs_up_with_name_and_a_number_without_the_zero(): void
+    {
+        $this->post('/login', ['mode' => 'register', 'phone' => '79 123 4567'])->assertSessionHasErrors('name');
+        $this->post('/login', ['mode' => 'register', 'as' => 'student', 'name' => '<b>Shabnam</b> Rahimi', 'phone' => '79 123 4567'])->assertRedirect('/login/code');
+        $this->post('/login/code', ['code' => $this->lastCode()])->assertRedirect('/');
+        $user = User::where('phone', '+93791234567')->firstOrFail();
+        $this->assertSame('Shabnam Rahimi', $user->name);
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_signup_name_never_overwrites_an_existing_name(): void
+    {
+        User::factory()->create(['phone' => '+93791234567', 'name' => 'Real Name']);
+        $this->post('/login', ['mode' => 'register', 'name' => 'Other', 'phone' => '0791234567']);
+        $this->post('/login/code', ['code' => $this->lastCode()]);
+        $this->assertSame('Real Name', User::where('phone', '+93791234567')->value('name'));
+    }
+
+    public function test_teacher_signup_goes_to_the_teacher_application(): void
+    {
+        $this->get('/register?as=teacher')->assertOk()->assertSee(__('app.auth.teacher_note'));
+        $this->post('/login', ['mode' => 'register', 'as' => 'teacher', 'name' => 'Maryam', 'phone' => '0791234567']);
+        $this->post('/login/code', ['code' => $this->lastCode()])->assertRedirect('/become-a-teacher');
+    }
 }

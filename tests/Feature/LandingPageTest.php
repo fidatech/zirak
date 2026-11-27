@@ -22,7 +22,7 @@ class LandingPageTest extends TestCase
                 ->assertSee(__('app.landing.hero_highlight', [], $locale))
                 ->assertSee(__('app.landing.how_highlight', [], $locale))
                 ->assertSee('id="tutor"', false)->assertSee('id="teach"', false)
-                ->assertSee(route('teach.apply'))->assertSee(route('certificates.verify'));
+                ->assertSee(route('register', ['as' => 'teacher']))->assertSee(route('register'))->assertSee(route('certificates.verify'));
         }
 
         // The numbers band shows what is really published.
