@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Certificate;
 use App\Models\Chapter;
 use App\Models\Course;
 use App\Models\LessonCompletion;
@@ -167,5 +168,49 @@ class ProgressService
         }
 
         return $streak;
+    }
+
+    /**
+     * Numbers for the student dashboard: last 7 days of activity, this week vs last week,
+     * practice accuracy and certificates. One query per table; cheap enough for every page view.
+     */
+    public function dashboard(User $user): array
+    {
+        $since = CarbonImmutable::today()->subDays(13);
+        $lessons = LessonCompletion::where('user_id', $user->id)->where('completed_at', '>=', $since)->pluck('completed_at');
+        $practice = PracticeAnswer::where('user_id', $user->id)->where('updated_at', '>=', $since)->get(['updated_at', 'is_correct']);
+        $tests = TestAttempt::where('user_id', $user->id)->where('created_at', '>=', $since)->pluck('created_at');
+
+        $day = fn ($d) => CarbonImmutable::parse($d)->toDateString();
+        $activity = $lessons->map($day)->merge($practice->pluck('updated_at')->map($day))->merge($tests->map($day))->countBy();
+
+        $week = collect(range(6, 0))->map(function (int $ago) use ($activity) {
+            $date = CarbonImmutable::today()->subDays($ago);
+
+            return ['date' => $date, 'count' => (int) ($activity[$date->toDateString()] ?? 0)];
+        });
+
+        $thisWeekStart = CarbonImmutable::today()->subDays(6);
+        $lessonsThisWeek = $lessons->filter(fn ($d) => CarbonImmutable::parse($d)->gte($thisWeekStart))->count();
+        $lessonsLastWeek = $lessons->count() - $lessonsThisWeek;
+
+        $allPractice = PracticeAnswer::where('user_id', $user->id);
+        $answered = (clone $allPractice)->count();
+        $correct = (clone $allPractice)->where('is_correct', true)->count();
+        $recent = $practice->filter(fn ($a) => CarbonImmutable::parse($a->updated_at)->gte($thisWeekStart));
+        $older = $practice->diff($recent);
+        $rate = fn ($c) => $c->count() ? (int) round(100 * $c->where('is_correct', true)->count() / $c->count()) : null;
+
+        return [
+            'week' => $week,
+            'lessons_total' => LessonCompletion::where('user_id', $user->id)->count(),
+            'lessons_this_week' => $lessonsThisWeek,
+            'lessons_trend' => $lessonsThisWeek - $lessonsLastWeek,
+            'accuracy' => $answered ? (int) round(100 * $correct / $answered) : null,
+            'accuracy_trend' => ($rate($recent) !== null && $rate($older) !== null) ? $rate($recent) - $rate($older) : null,
+            'answered' => $answered,
+            'certificates' => Certificate::where('user_id', $user->id)->where('status', 'valid')->count(),
+            'active_days' => $week->where('count', '>', 0)->count(),
+        ];
     }
 }

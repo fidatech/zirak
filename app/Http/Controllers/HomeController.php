@@ -42,6 +42,7 @@ class HomeController extends Controller
             'weak' => $progress->weakTopics($user, 4),
             'streak' => $progress->streak($user),
             'featured' => $featured,
+            'stats' => $progress->dashboard($user),
         ]);
     }
 }
