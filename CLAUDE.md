@@ -5,6 +5,7 @@ Online AI & skills institute for Afghan learners in **Dari (`prs`)**, **Pashto (
 ## Stack
 - Laravel 13 (PHP 8.3+), Blade views + Tailwind CSS 4 + Alpine.js, built with Vite. **Built assets in `public/build` are committed** (cPanel has no Node).
 - Filament 5 admin panel at `/admin` (`app/Filament`). Only users with role `admin` can enter.
+- Teacher area: second Filament panel at `/teach` (`app/Filament/Teach`, `TeachPanelProvider`), role `instructor`, no login page of its own (teachers use the site's phone/Telegram login). **Every teacher resource must scope its query to `teacher_id = auth()->id()`** (chapters via `whereHas('course')`); the teacher chapter form has no course picker, the lesson form can't set `video_id`, prices lock after publishing. Teachers create drafts → "Send for review" (`review`) → admin approves (`published`) or requests changes (back to `draft` with `review_note`). `TeacherService` handles applications (`/become-a-teacher`) and review; `TeacherEarnings` fixes `teacher_share`/`teacher_amount` on the order inside `markPaid` (default `config('zirak.teacher_share')`, refunded orders stop counting) and computes balances minus `teacher_payouts`. Public teacher page `/teachers/{id}` shows `publicName()` only.
 - Database queue + cache + sessions (`database` drivers). Cron runs `schedule:run` and `queue:work --stop-when-empty`.
 - Payments: `App\Services\Payments` — `CheckoutService` picks `HesabPayGateway` (sandbox/live) or `FakeGateway` (local only; refused in production).
 - SMS: `App\Services\Sms\SmsSender` (only `LogSmsSender` so far).
@@ -27,7 +28,8 @@ Progress: `Enrollment`, `LessonCompletion`, `PracticeAnswer`, `TestAttempt`. Com
 3. **Low data:** no autoplay, no heavy JS libraries, keep `public/build` small.
 4. **Money** is integers (AFN, or US cents). Access is granted only by `EnrollmentService::markPaid()` from a **verified** webhook, the demo gateway, a 100% coupon, or an admin "mark paid" — never from the browser return URL.
 5. **Webhooks** are stored in `gateway_events`; processing must stay idempotent (`markPaid` locks the order row).
-6. **Privacy:** phone numbers are never shown to other students or instructors; nicknames allowed.
+6. **Privacy:** phone numbers are never shown to other students or instructors; nicknames allowed (`User::publicName()`).
+9. In Dari/Pashto never put a middle dot `·` next to numbers (it reads as Persian zero `۰`): use `sep()` between items.
 7. Practice answers return the correct option only **after** the student answers. The tutor must not hand out test answers, and course material goes into the prompt as reference data inside `<course_material>`.
 8. Any new student-facing feature needs a feature test. Run `php artisan test` and `vendor/bin/pint` before committing. Rebuild assets with `npm run build` when views or CSS change, and commit `public/build`.
 

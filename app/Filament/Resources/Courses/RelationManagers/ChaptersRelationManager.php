@@ -18,6 +18,9 @@ class ChaptersRelationManager extends RelationManager
 {
     protected static string $relationship = 'chapters';
 
+    /** Which panel's chapter page the "Lessons & questions" button opens. */
+    protected static string $chapterResource = ChapterResource::class;
+
     public function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -44,7 +47,7 @@ class ChaptersRelationManager extends RelationManager
             ->headerActions([CreateAction::make()])
             ->recordActions([
                 Action::make('content')->label('Lessons & questions')->icon('heroicon-o-academic-cap')
-                    ->url(fn ($record) => ChapterResource::getUrl('edit', ['record' => $record])),
+                    ->url(fn ($record) => static::$chapterResource::getUrl('edit', ['record' => $record])),
                 EditAction::make(),
                 DeleteAction::make(),
             ]);

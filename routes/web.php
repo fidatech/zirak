@@ -9,6 +9,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\TeachController;
 use App\Http\Controllers\TelegramAuthController;
 use App\Http\Controllers\TelegramWebhookController;
 use App\Http\Controllers\TutorController;
@@ -31,6 +32,8 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/become-a-teacher', [TeachController::class, 'apply'])->name('teach.apply');
+    Route::post('/become-a-teacher', [TeachController::class, 'submit'])->middleware('throttle:5,60')->name('teach.submit');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::post('/courses/{course}/buy', [CourseController::class, 'purchase'])->name('courses.purchase');
@@ -65,3 +68,5 @@ Route::middleware('auth')->group(function () {
 
 Route::post('/webhooks/telegram', TelegramWebhookController::class)->name('webhooks.telegram');
 Route::post('/webhooks/hesabpay', [PaymentController::class, 'hesabpayWebhook'])->name('webhooks.hesabpay');
+
+Route::get('/teachers/{teacher}', [TeachController::class, 'show'])->whereNumber('teacher')->name('teachers.show');

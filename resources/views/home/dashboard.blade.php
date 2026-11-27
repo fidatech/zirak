@@ -15,8 +15,8 @@
             <section class="flex items-center gap-4 rounded-3xl bg-brand-600 p-5 text-white md:p-6">
                 <div class="flex flex-1 flex-col gap-2">
                     <div class="text-sm font-bold text-brand-100">{{ __('app.home.next_step') }}</div>
-                    <div class="text-xl font-extrabold leading-relaxed">{{ $next['course']->title }} · {{ $step['chapter']->title }}</div>
-                    <div class="text-sm text-brand-100">{{ __('app.chapter.'.$step['tab']) }} · {{ __('app.course.progress') }} {{ pct($next['state']['percent']) }}</div>
+                    <div class="text-xl font-extrabold leading-relaxed">{{ $next['course']->title }}{{ sep() }}{{ $step['chapter']->title }}</div>
+                    <div class="text-sm text-brand-100">{{ __('app.chapter.'.$step['tab']) }}{{ sep() }}{{ __('app.course.progress') }} {{ pct($next['state']['percent']) }}</div>
                     <x-progress :value="$next['state']['percent']" color="#fff" track="rgba(255,255,255,.28)" class="max-w-md" />
                     <a href="{{ route('chapters.show', [$next['course'], $step['chapter'], $step['tab']]) }}" class="mt-2 self-start rounded-xl bg-white px-5 py-2.5 font-bold text-slate-900">{{ __('app.course.continue') }}</a>
                 </div>
@@ -61,7 +61,7 @@
                 </div>
                 <div class="flex flex-wrap gap-2">
                     @foreach ($weak as $topic)
-                        <a href="{{ route('chapters.show', [$topic['chapter']->course, $topic['chapter'], 'practice']) }}" @class(['rounded-full px-3.5 py-1.5 text-sm', 'bg-amber-100 text-amber-900' => $topic['percent'] < 70, 'bg-green-100 text-green-900' => $topic['percent'] >= 70])>{{ $topic['chapter']->title }} · {{ pct($topic['percent']) }}</a>
+                        <a href="{{ route('chapters.show', [$topic['chapter']->course, $topic['chapter'], 'practice']) }}" @class(['rounded-full px-3.5 py-1.5 text-sm', 'bg-amber-100 text-amber-900' => $topic['percent'] < 70, 'bg-green-100 text-green-900' => $topic['percent'] >= 70])>{{ $topic['chapter']->title }}{{ sep() }}{{ pct($topic['percent']) }}</a>
                     @endforeach
                 </div>
             </section>

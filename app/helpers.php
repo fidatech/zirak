@@ -38,3 +38,11 @@ if (! function_exists('data_saver')) {
         return (bool) auth()->user()?->data_saver || strtolower((string) request()->header('Save-Data')) === 'on';
     }
 }
+
+if (! function_exists('sep')) {
+    /** List separator. Dari/Pashto use a dash: a middle dot next to Persian digits reads as a zero (۰). */
+    function sep(): string
+    {
+        return text_dir() === 'rtl' ? ' – ' : ' · ';
+    }
+}

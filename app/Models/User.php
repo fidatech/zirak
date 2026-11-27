@@ -18,7 +18,7 @@ class User extends Authenticatable implements FilamentUser
     use HasFactory, Notifiable;
 
     // "role" is fillable for the admin panel only; student-facing controllers pass validated fields that never include it.
-    protected $fillable = ['name', 'nickname', 'phone', 'email', 'password', 'locale', 'is_private', 'role', 'telegram_reminders', 'data_saver'];
+    protected $fillable = ['name', 'nickname', 'phone', 'email', 'password', 'locale', 'is_private', 'role', 'telegram_reminders', 'data_saver', 'teacher_headline', 'teacher_bio'];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -40,7 +40,31 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->role === UserRole::Admin;
+        return match ($panel->getId()) {
+            'teach' => $this->isTeacher(),
+            default => $this->role === UserRole::Admin,
+        };
+    }
+
+    public function isTeacher(): bool
+    {
+        return $this->role === UserRole::Instructor;
+    }
+
+    /** Name shown to other people: never the phone number. */
+    public function publicName(): string
+    {
+        return $this->nickname ?: ($this->name ?: __('app.student'));
+    }
+
+    public function taughtCourses(): HasMany
+    {
+        return $this->hasMany(Course::class, 'teacher_id');
+    }
+
+    public function teacherApplications(): HasMany
+    {
+        return $this->hasMany(TeacherApplication::class);
     }
 
     public function isAdmin(): bool

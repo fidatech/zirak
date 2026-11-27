@@ -2,7 +2,7 @@
 <x-layouts.app :title="__('app.report.title')">
     <div class="mx-auto flex max-w-5xl flex-col gap-5 px-4 py-6 lg:px-8">
         <div class="flex flex-wrap items-center gap-3">
-            <div class="flex-1"><h1 class="text-2xl font-extrabold">{{ __('app.report.title') }}</h1><p class="text-sm text-slate-600">{{ auth()->user()->displayName() }} · {{ $report['days'][0]['date']->translatedFormat('j F') }} – {{ $report['days'][6]['date']->translatedFormat('j F') }}</p></div>
+            <div class="flex-1"><h1 class="text-2xl font-extrabold">{{ __('app.report.title') }}</h1><p class="text-sm text-slate-600">{{ auth()->user()->displayName() }}{{ sep() }}{{ $report['days'][0]['date']->translatedFormat('j F') }} – {{ $report['days'][6]['date']->translatedFormat('j F') }}</p></div>
             <button onclick="window.print()" class="no-print rounded-xl border border-slate-300 bg-white px-4 py-2 font-bold">{{ __('app.report.print') }}</button>
         </div>
         <div class="grid grid-cols-2 gap-3 md:grid-cols-4">

@@ -5,7 +5,7 @@
         <div class="flex items-center gap-3 border-t border-slate-100 pt-3">
             <a :href="item.url" class="min-w-0 flex-1">
                 <div class="truncate font-bold text-brand-600" x-text="item.title"></div>
-                <div class="truncate text-xs text-slate-600"><span x-text="item.course"></span> · <bdi x-text="size(item.bytes)"></bdi></div>
+                <div class="truncate text-xs text-slate-600"><span x-text="item.course"></span>{{ sep() }}<bdi x-text="size(item.bytes)"></bdi></div>
             </a>
             <button type="button" @click="remove(item.key)" class="text-sm text-slate-600 underline">{{ __('app.offline.remove') }}</button>
         </div>

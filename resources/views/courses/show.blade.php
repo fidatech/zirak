@@ -5,11 +5,11 @@
             <x-subject-art :category="$course->category" :size="88" class="shrink-0" />
             <div class="flex-1">
                 <div class="text-sm font-bold" style="color: {{ $dark }}">
-                    <a href="{{ route('catalog.category', $course->category) }}">{{ $course->category->name() }}</a> · {{ $course->level->label() }} · {{ $course->languageLabel() }}
+                    <a href="{{ route('catalog.category', $course->category) }}">{{ $course->category->name() }}</a>{{ sep() }}{{ $course->level->label() }}{{ sep() }}{{ $course->languageLabel() }}
                 </div>
                 <h1 class="mt-1 text-2xl font-extrabold md:text-3xl">{{ $course->title }}</h1>
                 @if ($course->subtitle)<p class="mt-1 text-slate-700">{{ $course->subtitle }}</p>@endif
-                <div class="mt-2 text-sm text-slate-700">{{ n($course->chapters->count()) }} {{ __('app.chapters') }} · {{ n($lessonCount) }} {{ __('app.lessons') }} · {{ n($minutes) }} {{ __('app.minutes') }}</div>
+                <div class="mt-2 text-sm text-slate-700">{{ n($course->chapters->count()) }} {{ __('app.chapters') }}{{ sep() }}{{ n($lessonCount) }} {{ __('app.lessons') }}{{ sep() }}{{ n($minutes) }} {{ __('app.minutes') }}</div>
                 @if ($enrolled)
                     <div class="mt-3 flex max-w-sm items-center gap-3 text-sm"><x-progress :value="$state['percent']" :color="$strong" track="#fff" /> {{ pct($state['percent']) }}</div>
                 @endif
@@ -32,7 +32,7 @@
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <div @class(['text-xs font-bold', 'text-green-700' => $s['complete'], 'text-brand-600' => $isCurrent && ! $s['complete'], 'text-slate-500' => ! $isCurrent && ! $s['complete']])>
-                                    {{ __('app.chapter.chapter_n', ['n' => n($i + 1)]) }}@if($s['complete']) · {{ __('app.chapter.done') }}@elseif($isCurrent) · {{ __('app.chapter.in_progress') }}@endif
+                                    {{ __('app.chapter.chapter_n', ['n' => n($i + 1)]) }}@if($s['complete']){{ sep() }}{{ __('app.chapter.done') }}@elseif($isCurrent){{ sep() }}{{ __('app.chapter.in_progress') }}@endif
                                 </div>
                                 <div class="text-lg font-extrabold">{{ $chapter->title }}</div>
                             </div>
@@ -42,10 +42,10 @@
                             @foreach ([['learn', $s['learn_done'], n($s['lessons_done']).'/'.n($s['lessons_total'])], ['practice', $s['practice_done'], n($s['practice_correct']).'/'.n($s['practice_total'])], ['test', $s['passed'], $s['best_score'] !== null ? pct($s['best_score']) : null]] as $k => [$tab, $ok, $meta])
                                 @php($locked = $tab === 'test' && ! $s['test_unlocked'])
                                 @if ($locked)
-                                    <span class="flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-2.5 text-sm text-slate-500"><x-svg-icon name="lock" :size="16" />{{ n($k + 1) }} · {{ __('app.chapter.test') }} ({{ __('app.chapter.locked_test') }})</span>
+                                    <span class="flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-2.5 text-sm text-slate-500"><x-svg-icon name="lock" :size="16" />{{ n($k + 1) }}{{ sep() }}{{ __('app.chapter.test') }} ({{ __('app.chapter.locked_test') }})</span>
                                 @else
                                     <a href="{{ route('chapters.show', [$course, $chapter, $tab]) }}" @class(['flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold', 'bg-green-100 text-green-900' => $ok, 'bg-brand-600 text-white' => ! $ok && $isCurrent && $tab === $nextTab, 'border border-slate-200 bg-slate-50 text-slate-700' => ! $ok && ! ($isCurrent && $tab === $nextTab)])>
-                                        @if($ok)<x-svg-icon name="check" :size="16" />@endif {{ n($k + 1) }} · {{ __('app.chapter.'.$tab) }}
+                                        @if($ok)<x-svg-icon name="check" :size="16" />@endif {{ n($k + 1) }}{{ sep() }}{{ __('app.chapter.'.$tab) }}
                                         @if($meta)<span class="ms-auto font-normal opacity-80">{{ $meta }}</span>@endif
                                     </a>
                                 @endif
@@ -98,7 +98,13 @@
                         @endforeach
                     </div>
                 </section>
-                @if ($course->instructor_name)
+                @if ($course->teacher)
+                    <a href="{{ route('teachers.show', $course->teacher) }}" class="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5">
+                        <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full" style="background: {{ $soft }}; color: {{ $strong }}"><x-svg-icon name="user" :size="28" /></span>
+                        <div class="min-w-0 flex-1"><div class="text-sm text-slate-500">{{ __('app.course.instructor') }}</div><div class="font-bold">{{ $course->teacher->publicName() }}</div>@if($course->teacher->teacher_headline)<div class="text-sm text-slate-600">{{ $course->teacher->teacher_headline }}</div>@endif</div>
+                        <x-svg-icon name="forward" :size="18" class="text-slate-400" />
+                    </a>
+                @elseif ($course->instructor_name)
                     <section class="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5">
                         <span class="flex h-14 w-14 items-center justify-center rounded-full text-xl font-extrabold" style="background: {{ $soft }}; color: {{ $strong }}">{{ mb_substr($course->instructor_name, 0, 1) }}</span>
                         <div><div class="text-sm text-slate-500">{{ __('app.course.instructor') }}</div><div class="font-bold">{{ $course->instructor_name }}</div>@if($course->instructor_bio)<div class="text-sm text-slate-600">{{ $course->instructor_bio }}</div>@endif</div>

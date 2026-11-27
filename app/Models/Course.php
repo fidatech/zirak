@@ -36,6 +36,11 @@ class Course extends Model
         return 'slug';
     }
 
+    public function teacher(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'teacher_id');
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
