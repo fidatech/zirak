@@ -48,7 +48,7 @@ class TeachController extends Controller
     /** Public teacher page. Shows the public name only, never contact details. */
     public function show(User $teacher): View
     {
-        $courses = $teacher->taughtCourses()->where('status', CourseStatus::Published)->with('category')->latest('published_at')->get();
+        $courses = $teacher->taughtCourses()->where('status', CourseStatus::Published)->forCards()->latest('published_at')->get();
         abort_unless($teacher->isTeacher() || $courses->isNotEmpty(), 404);
 
         return view('teach.show', [

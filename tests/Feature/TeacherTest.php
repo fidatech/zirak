@@ -11,7 +11,15 @@ use App\Filament\Teach\Resources\Chapters\Pages\EditChapter;
 use App\Filament\Teach\Resources\Chapters\RelationManagers\LessonsRelationManager;
 use App\Filament\Teach\Resources\Courses\Pages\CreateCourse;
 use App\Filament\Teach\Resources\Courses\Pages\EditCourse;
+use App\Filament\Teach\Widgets\EarningsChart;
+use App\Filament\Teach\Widgets\MyCoursesTable;
 use App\Filament\Teach\Widgets\TeacherStats;
+use App\Filament\Teach\Widgets\TeacherWelcome;
+use App\Filament\Widgets\AdminWelcome;
+use App\Filament\Widgets\EnrollmentsBySubject;
+use App\Filament\Widgets\RecentActivity;
+use App\Filament\Widgets\RevenueChart;
+use App\Filament\Widgets\StatsOverview;
 use App\Filament\Widgets\TeacherBalances;
 use App\Models\Category;
 use App\Models\Chapter;
@@ -334,5 +342,28 @@ class TeacherTest extends TestCase
             ->assertDontSee('Secret draft')->assertDontSee('791112233')->assertDontSee('Maryam Ahmadi');
 
         $this->get(route('teachers.show', User::factory()->create()))->assertNotFound();
+    }
+
+    public function test_dashboards_show_only_the_teachers_own_numbers(): void
+    {
+        $mine = $this->course($this->teacher, ['status' => CourseStatus::Published, 'title' => 'Logo design', 'teacher_share' => 50]);
+        $theirs = $this->course($this->otherTeacher, ['status' => CourseStatus::Review, 'title' => 'Secret other course', 'submitted_at' => now()->subHour()]);
+        $buyer = User::factory()->create(['nickname' => 'Shabnam']);
+        $order = Order::create(['user_id' => $buyer->id, 'course_id' => $mine->id, 'status' => 'pending', 'gateway' => 'hesabpay', 'currency' => 'AFN', 'subtotal' => 1000, 'total' => 1000]);
+        app(EnrollmentService::class)->markPaid($order, 'tx-dash');
+
+        $this->actingAs($this->teacher);
+        $this->get('/teach')->assertOk()->assertSeeLivewire(TeacherWelcome::class)->assertSeeLivewire(MyCoursesTable::class)->assertSeeLivewire(EarningsChart::class);
+        $this->teachPanel();
+        Livewire::test(TeacherWelcome::class)->assertSee('Ustad Maryam');
+        Livewire::test(MyCoursesTable::class)->assertSee('Logo design')->assertSee('500 AFN')->assertDontSee('Secret other course');
+        Livewire::test(TeacherStats::class)->assertSee(__('teach.stats.questions_none'));
+
+        $this->actingAs($this->admin);
+        $this->adminPanel();
+        $this->get('/admin')->assertOk()->assertSeeLivewire(StatsOverview::class)->assertSeeLivewire(RevenueChart::class)->assertSeeLivewire(EnrollmentsBySubject::class);
+        Livewire::test(AdminWelcome::class)->assertSee('to review');
+        Livewire::test(RecentActivity::class)->assertSee('Shabnam')->assertSee('paid 1,000 AFN for')->assertSee('Logo design')->assertSee('sent a course for review');
+        Livewire::test(StatsOverview::class)->assertSee('1,000');
     }
 }

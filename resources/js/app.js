@@ -2,6 +2,21 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
+// Highlights the side-menu item of the section being read (landing page).
+Alpine.data('scrollspy', (ids) => ({
+    active: ids[0],
+    init() {
+        if (!('IntersectionObserver' in window)) return;
+        const seen = new Map();
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((e) => seen.set(e.target.id, e.isIntersecting ? e.intersectionRatio : 0));
+            const best = ids.filter((id) => (seen.get(id) || 0) > 0)[0];
+            if (best) this.active = best;
+        }, { rootMargin: '-30% 0px -55% 0px', threshold: [0, 0.01] });
+        ids.forEach((id) => { const el = document.getElementById(id); if (el) observer.observe(el); });
+    },
+}));
+
 // ---------- Offline: saved chapters, and answers waiting for the internet ----------
 const OFFLINE_CACHE = 'zirak-offline';
 const SAVED = 'zirak.saved';

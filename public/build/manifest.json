@@ -92,7 +92,7 @@
     "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-symbols-700-normal.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-CPN7UfQG.css",
+    "file": "assets/app-BnB1j3ff.css",
     "name": "app",
     "names": [
       "app.css"
@@ -125,6 +125,15 @@
       "assets/noto-sans-arabic-latin-700-normal-DST6Nu2E.woff"
     ]
   },
+  "resources/css/filament/zirak/theme.css": {
+    "file": "assets/theme-DqOckUv_.css",
+    "name": "theme",
+    "names": [
+      "theme.css"
+    ],
+    "src": "resources/css/filament/zirak/theme.css",
+    "isEntry": true
+  },
   "resources/css/teach-font.css": {
     "file": "assets/teach-font-J6eupxwj.css",
     "name": "teach-font",
@@ -140,7 +149,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-CobL7G-d.js",
+    "file": "assets/app-BXFizAYM.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true

@@ -26,6 +26,7 @@ Route::view('/offline', 'offline')->name('offline');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/login', [AuthController::class, 'sendCode'])->name('login.send')->middleware('throttle:10,1');
     Route::get('/login/code', [AuthController::class, 'showCode'])->name('login.code');
     Route::post('/login/code', [AuthController::class, 'verify'])->name('login.verify')->middleware('throttle:10,1');

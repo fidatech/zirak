@@ -21,16 +21,20 @@ class CatalogController extends Controller
             'language' => ['nullable', 'array'],
             'language.*' => ['string'],
             'price' => ['nullable', 'in:free,paid'],
+            'sort' => ['nullable', 'in:newest,popular,price_asc,price_desc'],
         ]);
 
-        $courses = Course::published()->with('category')->withCount('lessons')
+        $courses = Course::published()->forCards()
             ->when($category, fn ($q) => $q->where('category_id', $category->id))
             ->when($filters['q'] ?? null, fn ($q, $term) => $q->where(fn ($w) => $w->where('title', 'like', "%{$term}%")->orWhere('subtitle', 'like', "%{$term}%")))
             ->when($filters['level'] ?? null, fn ($q, $levels) => $q->whereIn('level', $levels))
             ->when($filters['language'] ?? null, fn ($q, $langs) => $q->whereIn('language', $langs))
             ->when(($filters['price'] ?? null) === 'free', fn ($q) => $q->where('is_free', true))
             ->when(($filters['price'] ?? null) === 'paid', fn ($q) => $q->where('is_free', false))
-            ->orderByDesc('is_featured')->latest('published_at')
+            ->when(($filters['sort'] ?? null) === 'popular', fn ($q) => $q->orderByDesc('enrollments_count'))
+            ->when(($filters['sort'] ?? null) === 'price_asc', fn ($q) => $q->orderBy('is_free', 'desc')->orderBy('price_afn'))
+            ->when(($filters['sort'] ?? null) === 'price_desc', fn ($q) => $q->orderByDesc('price_afn'))
+            ->when(empty($filters['sort']) || $filters['sort'] === 'newest', fn ($q) => $q->orderByDesc('is_featured')->latest('published_at'))
             ->paginate(12)->withQueryString();
 
         return view('catalog.index', [

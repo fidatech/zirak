@@ -61,6 +61,11 @@ class Course extends Model
         return $this->hasMany(Enrollment::class);
     }
 
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', CourseStatus::Published);
@@ -79,5 +84,13 @@ class Course extends Model
     public function totalMinutes(): int
     {
         return (int) ceil($this->lessons()->sum('duration_seconds') / 60);
+    }
+
+    /** What course cards show: teacher, lesson count and length, student count. */
+    public function scopeForCards($query)
+    {
+        return $query->with(['category', 'teacher'])
+            ->withCount(['lessons', 'enrollments'])
+            ->withSum('lessons', 'duration_seconds');
     }
 }
