@@ -14,11 +14,13 @@ use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
@@ -32,6 +34,8 @@ class TeachPanelProvider extends PanelProvider
             ->path('teach')
             ->brandName(fn () => __('teach.brand'))
             ->favicon('/icons/icon-192.png')
+            // Lesson video uploads (tus → Bunny Stream). Only the panels load this script.
+            ->renderHook(PanelsRenderHook::BODY_END, fn () => Blade::render("@vite('resources/js/video-upload.js')"))
             ->defaultAvatarProvider(LocalAvatarProvider::class)
             ->colors(['primary' => Color::Teal])
             // Same font as the site, served from public/build (Dari/Pashto script, no Google/Bunny fonts download).
