@@ -28,7 +28,23 @@ jobs:
     steps:
       - name: Skip when the server is not configured yet
         if: env.HAS_SECRETS != 'true'
-        run: echo "::notice::CPANEL_* secrets are not set, so nothing was deployed. See docs/DEPLOY-CPANEL.md."
+        env:
+          # Only "set" or "missing" is printed, never a value.
+          S_HOST: ${{ secrets.CPANEL_SSH_HOST != '' && 'set' || 'missing' }}
+          S_USER: ${{ secrets.CPANEL_SSH_USER != '' && 'set' || 'missing' }}
+          S_KEY: ${{ secrets.CPANEL_SSH_KEY != '' && 'set' || 'missing' }}
+          S_PATH: ${{ secrets.CPANEL_APP_PATH != '' && 'set' || 'missing' }}
+          S_PORT: ${{ secrets.CPANEL_SSH_PORT != '' && 'set' || 'not set (22)' }}
+          S_PHP: ${{ secrets.CPANEL_PHP != '' && 'set' || 'not set (php)' }}
+        run: |
+          echo "Secrets this workflow can see (repository secrets, or the 'production' environment):"
+          echo "  CPANEL_SSH_HOST: $S_HOST"
+          echo "  CPANEL_SSH_USER: $S_USER"
+          echo "  CPANEL_SSH_KEY:  $S_KEY"
+          echo "  CPANEL_APP_PATH: $S_PATH"
+          echo "  CPANEL_SSH_PORT: $S_PORT"
+          echo "  CPANEL_PHP:      $S_PHP"
+          echo "::notice::Not deployed: CPANEL_SSH_HOST=$S_HOST, CPANEL_SSH_KEY=$S_KEY, CPANEL_SSH_USER=$S_USER, CPANEL_APP_PATH=$S_PATH. See docs/DEPLOY-CPANEL.md."
 
       - uses: actions/checkout@v4
         if: env.HAS_SECRETS == 'true'
