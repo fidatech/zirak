@@ -61,6 +61,11 @@ class Course extends Model
         return $this->hasMany(Enrollment::class);
     }
 
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', CourseStatus::Published);

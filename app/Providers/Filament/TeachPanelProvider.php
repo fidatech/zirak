@@ -37,7 +37,8 @@ class TeachPanelProvider extends PanelProvider
             // Lesson video uploads (tus → Bunny Stream). Only the panels load this script.
             ->renderHook(PanelsRenderHook::BODY_END, fn () => Blade::render("@vite('resources/js/video-upload.js')"))
             ->defaultAvatarProvider(LocalAvatarProvider::class)
-            ->colors(['primary' => Color::Teal])
+            ->colors(['primary' => Color::hex('#5B4CE6')])
+            ->viteTheme('resources/css/filament/zirak/theme.css')
             // Same font as the site, served from public/build (Dari/Pashto script, no Google/Bunny fonts download).
             ->font('Vazirmatn Variable', url: fn () => Vite::asset('resources/css/teach-font.css'), provider: LocalFontProvider::class)
             ->userMenuItems(collect(config('zirak.locales'))->map(fn (array $l, string $code) => Action::make('lang_'.$code)
