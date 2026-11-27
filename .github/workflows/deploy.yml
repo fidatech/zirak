@@ -11,6 +11,9 @@ name: deploy
 #   CPANEL_APP_PATH                      app folder on the server (default: "zirak" in the cPanel home folder)
 #   CPANEL_PHP                           PHP 8.3+ CLI (default "php"), e.g. /opt/cpanel/ea-php83/root/usr/bin/php
 #   SITE_URL (variable or secret)        checked after deploying (default https://zirak.af)
+# First deploy only (creates the server's .env when it has none; an existing .env is never changed):
+#   DB_DATABASE, DB_USERNAME, DB_PASSWORD   the MySQL database made in cPanel → MySQL Databases
+#   DB_HOST                                 optional, default localhost
 
 on:
   push:
@@ -34,6 +37,10 @@ jobs:
       D_PATH: ${{ secrets.CPANEL_APP_PATH || 'zirak' }}
       D_PHP: ${{ secrets.CPANEL_PHP || 'php' }}
       D_SITE: ${{ vars.SITE_URL || secrets.SITE_URL || 'https://zirak.af' }}
+      D_DB_NAME: ${{ secrets.DB_DATABASE }}
+      D_DB_USER: ${{ secrets.DB_USERNAME }}
+      D_DB_PASS: ${{ secrets.DB_PASSWORD }}
+      D_DB_HOST: ${{ secrets.DB_HOST }}
     steps:
       - name: Check the deploy settings
         id: check
@@ -46,6 +53,7 @@ jobs:
           echo "SSH port:        $( [ "$D_PORT" = 22 ] && echo '22 (default)' || echo set)"
           echo "Known hosts:     $(s "$D_KNOWN_HOSTS")"
           echo "App folder:      $D_PATH"
+          echo "DB_DATABASE:     $(s "$D_DB_NAME")   DB_USERNAME: $(s "$D_DB_USER")   DB_PASSWORD: $(s "$D_DB_PASS")   (only needed for the first deploy)"
           if [ -n "$D_HOST" ] && [ -n "$D_USER" ] && [ -n "$D_KEY" ]; then
             echo "ready=true" >> "$GITHUB_OUTPUT"
           else
@@ -89,9 +97,11 @@ jobs:
           echo "SSH_CMD=ssh -i $HOME/.ssh/deploy_key -p $D_PORT -o BatchMode=yes -o ConnectTimeout=20" >> "$GITHUB_ENV"
 
       - name: Check the server
+        id: server
         if: steps.check.outputs.ready == 'true'
         run: |
-          $SSH_CMD "$D_USER@$D_HOST" bash -s <<EOF
+          set -o pipefail
+          $SSH_CMD "$D_USER@$D_HOST" bash -s <<EOF | tee /tmp/server.txt
           set -e
           echo "Connected as \$(whoami) on \$(hostname)."
           VERSION=\$($D_PHP -r 'echo PHP_VERSION;' 2>/dev/null || echo none)
@@ -99,9 +109,23 @@ jobs:
           $D_PHP -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);' || { echo "::error::PHP 8.3 or newer is needed. In cPanel → MultiPHP choose 8.3, or set the CPANEL_PHP secret, e.g. /opt/cpanel/ea-php83/root/usr/bin/php"; exit 1; }
           command -v tar >/dev/null || { echo "::error::tar is not available on the server."; exit 1; }
           mkdir -p "$D_PATH"
-          test -f "$D_PATH/.env" || { echo "::error::$D_PATH/.env is missing on the server. Create it once (docs/DEPLOY-CPANEL.md, step 5): database name, user and password, APP_URL=https://zirak.af, APP_ENV=production, APP_DEBUG=false."; exit 1; }
-          echo "Found $D_PATH/.env"
+          if test -f "$D_PATH/.env"; then echo "ENV_FILE=yes"; else echo "ENV_FILE=no"; fi
           EOF
+          grep -q '^ENV_FILE=yes' /tmp/server.txt && echo "has_env=true" >> "$GITHUB_OUTPUT" || echo "has_env=false" >> "$GITHUB_OUTPUT"
+
+      - name: Create the server's .env (first deploy only)
+        if: steps.check.outputs.ready == 'true' && steps.server.outputs.has_env != 'true'
+        run: |
+          if [ -z "$D_DB_NAME" ] || [ -z "$D_DB_USER" ] || [ -z "$D_DB_PASS" ]; then
+            echo "::error::The server has no $D_PATH/.env yet. Add the repository secrets DB_DATABASE, DB_USERNAME and DB_PASSWORD (from cPanel → MySQL Databases) and run the deploy again, or create the file by hand (docs/DEPLOY-CPANEL.md)."
+            exit 1
+          fi
+          php .github/scripts/make-env.php .env.example > /tmp/server.env
+          # Written to .env.new first and only moved into place if there is still no .env.
+          $SSH_CMD "$D_USER@$D_HOST" "umask 077 && cat > '$D_PATH/.env.new' && cd '$D_PATH' && if [ -f .env ]; then rm .env.new; else mv .env.new .env; fi && chmod 600 .env" < /tmp/server.env
+          rm -f /tmp/server.env
+          echo "Created $D_PATH/.env on the server (MySQL, production, new APP_KEY)."
+
 
       - name: Upload files
         if: steps.check.outputs.ready == 'true'
