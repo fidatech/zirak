@@ -13,3 +13,6 @@ Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->
 
 // Daily Telegram study reminder, mid-afternoon Kabul time.
 Schedule::command('zirak:telegram-reminders')->dailyAt('15:30')->timezone('Asia/Kabul')->withoutOverlapping();
+
+// Lesson videos still uploading/processing on Bunny (backup for missed webhooks).
+Schedule::command('zirak:video-sync')->everyFiveMinutes()->withoutOverlapping();

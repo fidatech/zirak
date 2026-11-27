@@ -7,6 +7,7 @@ use App\Services\Telegram\TelegramClient;
 use App\Services\Tutor\AnthropicTutorClient;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -46,6 +47,8 @@ class Settings extends Page
         $this->form->fill([
             'hesabpay_driver' => $s->get('hesabpay_driver'),
             'bunny_library_id' => $s->get('bunny_library_id'),
+            'bunny_api_key' => null,
+            'bunny_read_only_key' => null,
             'tutor_enabled' => (bool) $s->get('tutor_enabled'),
             'tutor_driver' => $s->get('tutor_driver'),
             'tutor_model' => $s->get('tutor_model'),
@@ -86,7 +89,11 @@ class Settings extends Page
             Section::make('Videos (Bunny Stream)')
                 ->schema([
                     TextInput::make('bunny_library_id')->label('Video library ID')->maxLength(40)
-                        ->helperText('Bunny → Stream → your library → API. Lessons then only need their video ID.'),
+                        ->helperText('Bunny → Stream → your library → API.'),
+                    $this->secret('bunny_api_key', 'Library API key (for teacher video uploads)'),
+                    $this->secret('bunny_read_only_key', 'Library read-only API key (checks Bunny\'s webhook)'),
+                    Placeholder::make('bunny_webhook')->label('Webhook URL to paste in Bunny → Stream → library → Webhook')
+                        ->content(fn () => url('/webhooks/bunny')),
                 ]),
             Section::make('AI tutor')
                 ->schema([

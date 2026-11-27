@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Chapters\RelationManagers;
 
+use App\Models\Lesson;
+use App\Services\Video\BunnyStream;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -59,10 +62,22 @@ class LessonsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('title')->label(__('teach.lesson.title')),
                 TextColumn::make('duration_seconds')->label(__('teach.lesson.minutes'))->formatStateUsing(fn ($state) => n(max(1, (int) ceil($state / 60)))),
-                IconColumn::make('video_id')->label(__('teach.lesson.video'))->boolean()->getStateUsing(fn ($record) => filled($record->video_id)),
+                TextColumn::make('video')->label(__('teach.lesson.video'))->badge()
+                    ->getStateUsing(fn (Lesson $record) => $record->video_status ?? ($record->video_id ? 'ready' : 'none'))
+                    ->formatStateUsing(fn (string $state) => __('teach.video.status_'.$state))
+                    ->color(fn (string $state) => match ($state) {
+                        'ready' => 'success', 'processing', 'uploading' => 'info', 'failed' => 'danger', default => 'gray'
+                    }),
                 IconColumn::make('is_preview')->label(__('teach.lesson.preview'))->boolean(),
             ])
             ->headerActions([CreateAction::make()->slideOver()])
-            ->recordActions([EditAction::make()->slideOver(), DeleteAction::make()]);
+            ->recordActions([
+                Action::make('video')->label(__('teach.video.button'))->icon('heroicon-o-video-camera')->color('primary')
+                    ->modalHeading(fn (Lesson $record) => __('teach.video.heading', ['lesson' => $record->title]))
+                    ->modalContent(fn (Lesson $record) => view('filament.video-upload', ['lesson' => $record, 'configured' => app(BunnyStream::class)->configured()]))
+                    ->modalSubmitAction(false)->modalCancelActionLabel(__('teach.video.close'))->modalWidth('lg'),
+                EditAction::make()->slideOver(),
+                DeleteAction::make(),
+            ]);
     }
 }

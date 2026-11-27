@@ -92,7 +92,7 @@
     "src": "node_modules/@fontsource/noto-sans-arabic/files/noto-sans-arabic-symbols-700-normal.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-bQhq-F0-.css",
+    "file": "assets/app-CPN7UfQG.css",
     "name": "app",
     "names": [
       "app.css"
@@ -143,6 +143,12 @@
     "file": "assets/app-CobL7G-d.js",
     "name": "app",
     "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/js/video-upload.js": {
+    "file": "assets/video-upload-BsuEbINJ.js",
+    "name": "video-upload",
+    "src": "resources/js/video-upload.js",
     "isEntry": true
   }
 }
