@@ -206,3 +206,8 @@ Then delete the key files from your computer, or keep them somewhere safe.
 **4. Deploy:** merge a pull request into `main`, or run it by hand: **Actions → deploy → Run workflow**. Watch progress in the Actions tab.
 
 Until the secrets exist, the workflow only prints a note and changes nothing.
+
+> **Secret names.** The deploy accepts either `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`, `SSH_PORT`, `SSH_KNOWN_HOSTS`
+> or the `CPANEL_SSH_*` names. Without `CPANEL_APP_PATH` the app goes into a `zirak` folder in your cPanel home
+> folder (`/home/<user>/zirak`); point the domain's document root at `/home/<user>/zirak/public`. Every deploy prints
+> which settings it can see (never their values), checks PHP and `.env` on the server, and finally loads the site.
