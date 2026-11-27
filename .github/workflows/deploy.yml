@@ -1,14 +1,16 @@
 name: deploy
 
 # Deploys to cPanel over SSH after tests pass on main.
-# Needs repository secrets (Settings → Secrets and variables → Actions):
-#   CPANEL_SSH_HOST      server host name, e.g. server123.hosting.com
-#   CPANEL_SSH_USER      cPanel username
-#   CPANEL_SSH_KEY       private SSH key whose public key is in cPanel → SSH Access
-#   CPANEL_APP_PATH      absolute app folder on the server, e.g. /home/cpuser/zirak
+# Repository secrets (Settings → Secrets and variables → Actions). Either naming works:
+#   SSH_HOST        or CPANEL_SSH_HOST   server host name
+#   SSH_USER        or CPANEL_SSH_USER   cPanel username
+#   SSH_PRIVATE_KEY or CPANEL_SSH_KEY    private key whose public key is authorized in cPanel → SSH Access
 # Optional:
-#   CPANEL_SSH_PORT      SSH port (default 22)
-#   CPANEL_PHP           PHP 8.3+ CLI path (default "php"), e.g. /opt/cpanel/ea-php83/root/usr/bin/php
+#   SSH_PORT        or CPANEL_SSH_PORT   SSH port (default 22)
+#   SSH_KNOWN_HOSTS                      the server's host key line(s); without it the key is fetched with ssh-keyscan
+#   CPANEL_APP_PATH                      app folder on the server (default: "zirak" in the cPanel home folder)
+#   CPANEL_PHP                           PHP 8.3+ CLI (default "php"), e.g. /opt/cpanel/ea-php83/root/usr/bin/php
+#   SITE_URL (variable or secret)        checked after deploying (default https://zirak.af)
 
 on:
   push:
@@ -24,105 +26,123 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     env:
-      HAS_SECRETS: ${{ secrets.CPANEL_SSH_HOST != '' && secrets.CPANEL_SSH_KEY != '' }}
+      D_HOST: ${{ secrets.CPANEL_SSH_HOST || secrets.SSH_HOST }}
+      D_USER: ${{ secrets.CPANEL_SSH_USER || secrets.SSH_USER }}
+      D_KEY: ${{ secrets.CPANEL_SSH_KEY || secrets.SSH_PRIVATE_KEY }}
+      D_PORT: ${{ secrets.CPANEL_SSH_PORT || secrets.SSH_PORT || '22' }}
+      D_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+      D_PATH: ${{ secrets.CPANEL_APP_PATH || 'zirak' }}
+      D_PHP: ${{ secrets.CPANEL_PHP || 'php' }}
+      D_SITE: ${{ vars.SITE_URL || secrets.SITE_URL || 'https://zirak.af' }}
     steps:
-      - name: Skip when the server is not configured yet
-        if: env.HAS_SECRETS != 'true'
-        env:
-          # Only "set" or "missing" is printed, never a value.
-          S_HOST: ${{ secrets.CPANEL_SSH_HOST != '' && 'set' || 'missing' }}
-          S_USER: ${{ secrets.CPANEL_SSH_USER != '' && 'set' || 'missing' }}
-          S_KEY: ${{ secrets.CPANEL_SSH_KEY != '' && 'set' || 'missing' }}
-          S_PATH: ${{ secrets.CPANEL_APP_PATH != '' && 'set' || 'missing' }}
-          S_PORT: ${{ secrets.CPANEL_SSH_PORT != '' && 'set' || 'not set (22)' }}
-          S_PHP: ${{ secrets.CPANEL_PHP != '' && 'set' || 'not set (php)' }}
+      - name: Check the deploy settings
+        id: check
         run: |
-          echo "Secrets this workflow can see (repository secrets, or the 'production' environment):"
-          echo "  CPANEL_SSH_HOST: $S_HOST"
-          echo "  CPANEL_SSH_USER: $S_USER"
-          echo "  CPANEL_SSH_KEY:  $S_KEY"
-          echo "  CPANEL_APP_PATH: $S_PATH"
-          echo "  CPANEL_SSH_PORT: $S_PORT"
-          echo "  CPANEL_PHP:      $S_PHP"
-          echo "::notice::Not deployed: CPANEL_SSH_HOST=$S_HOST, CPANEL_SSH_KEY=$S_KEY, CPANEL_SSH_USER=$S_USER, CPANEL_APP_PATH=$S_PATH. See docs/DEPLOY-CPANEL.md."
+          # Only "set" or "missing" is printed, never a value.
+          s() { [ -n "$1" ] && echo set || echo missing; }
+          echo "SSH host:        $(s "$D_HOST")"
+          echo "SSH user:        $(s "$D_USER")"
+          echo "SSH private key: $(s "$D_KEY")"
+          echo "SSH port:        $( [ "$D_PORT" = 22 ] && echo '22 (default)' || echo set)"
+          echo "Known hosts:     $(s "$D_KNOWN_HOSTS")"
+          echo "App folder:      $D_PATH"
+          if [ -n "$D_HOST" ] && [ -n "$D_USER" ] && [ -n "$D_KEY" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Not deployed: set SSH_HOST, SSH_USER and SSH_PRIVATE_KEY (or the CPANEL_* names). See docs/DEPLOY-CPANEL.md."
+          fi
 
       - uses: actions/checkout@v4
-        if: env.HAS_SECRETS == 'true'
+        if: steps.check.outputs.ready == 'true'
 
       - uses: shivammathur/setup-php@v2
-        if: env.HAS_SECRETS == 'true'
+        if: steps.check.outputs.ready == 'true'
         with:
           php-version: '8.3'
           extensions: mbstring, intl, pdo_sqlite, gd, zip
 
       - name: Run tests
-        if: env.HAS_SECRETS == 'true'
+        if: steps.check.outputs.ready == 'true'
         run: |
           composer install --no-interaction --prefer-dist --no-progress
           cp .env.example .env && php artisan key:generate
           php artisan test
 
       - name: Build the production bundle
-        if: env.HAS_SECRETS == 'true'
+        if: steps.check.outputs.ready == 'true'
         run: |
           composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress
           php artisan filament:assets
           rm -f .env bootstrap/cache/*.php
 
       - name: Set up SSH
-        if: env.HAS_SECRETS == 'true'
-        env:
-          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
-          SSH_HOST: ${{ secrets.CPANEL_SSH_HOST }}
-          SSH_PORT: ${{ secrets.CPANEL_SSH_PORT || '22' }}
+        if: steps.check.outputs.ready == 'true'
         run: |
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
-          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          printf '%s\n' "$D_KEY" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
+          if [ -n "$D_KNOWN_HOSTS" ]; then
+            printf '%s\n' "$D_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          else
+            ssh-keyscan -p "$D_PORT" -H "$D_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          fi
+          chmod 600 ~/.ssh/known_hosts
+          echo "SSH_CMD=ssh -i $HOME/.ssh/deploy_key -p $D_PORT -o BatchMode=yes -o ConnectTimeout=20" >> "$GITHUB_ENV"
+
+      - name: Check the server
+        if: steps.check.outputs.ready == 'true'
+        run: |
+          $SSH_CMD "$D_USER@$D_HOST" bash -s <<EOF
+          set -e
+          echo "Connected as \$(whoami) on \$(hostname)."
+          VERSION=\$($D_PHP -r 'echo PHP_VERSION;' 2>/dev/null || echo none)
+          echo "PHP: \$VERSION ($D_PHP)"
+          $D_PHP -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);' || { echo "::error::PHP 8.3 or newer is needed. In cPanel → MultiPHP choose 8.3, or set the CPANEL_PHP secret, e.g. /opt/cpanel/ea-php83/root/usr/bin/php"; exit 1; }
+          command -v rsync >/dev/null || { echo "::error::rsync is not installed on the server. Ask the host to enable it."; exit 1; }
+          mkdir -p "$D_PATH"
+          test -f "$D_PATH/.env" || { echo "::error::$D_PATH/.env is missing on the server. Create it once (docs/DEPLOY-CPANEL.md, step 5): database name, user and password, APP_URL=https://zirak.af, APP_ENV=production, APP_DEBUG=false."; exit 1; }
+          echo "Found $D_PATH/.env"
+          EOF
 
       - name: Upload files
-        if: env.HAS_SECRETS == 'true'
-        env:
-          SSH_HOST: ${{ secrets.CPANEL_SSH_HOST }}
-          SSH_USER: ${{ secrets.CPANEL_SSH_USER }}
-          SSH_PORT: ${{ secrets.CPANEL_SSH_PORT || '22' }}
-          APP_PATH: ${{ secrets.CPANEL_APP_PATH }}
+        if: steps.check.outputs.ready == 'true'
         run: |
-          SSH="ssh -i ~/.ssh/deploy_key -p $SSH_PORT"
-          $SSH "$SSH_USER@$SSH_HOST" "test -f '$APP_PATH/.env' || { echo 'Missing $APP_PATH/.env — create it once by hand (docs/DEPLOY-CPANEL.md step 5).'; exit 1; }"
-          rsync -az --delete -e "$SSH" \
+          rsync -az --delete -e "$SSH_CMD" \
             --exclude '.git/' --exclude '.github/' --exclude 'node_modules/' --exclude 'tests/' \
             --exclude '.env' --exclude 'storage/' --exclude 'public/storage' \
             --exclude 'bootstrap/cache/*.php' --exclude 'database/*.sqlite' \
-            ./ "$SSH_USER@$SSH_HOST:$APP_PATH/"
+            ./ "$D_USER@$D_HOST:$D_PATH/"
 
       - name: Migrate and refresh caches
-        if: env.HAS_SECRETS == 'true'
-        env:
-          SSH_HOST: ${{ secrets.CPANEL_SSH_HOST }}
-          SSH_USER: ${{ secrets.CPANEL_SSH_USER }}
-          SSH_PORT: ${{ secrets.CPANEL_SSH_PORT || '22' }}
-          APP_PATH: ${{ secrets.CPANEL_APP_PATH }}
-          PHP_BIN: ${{ secrets.CPANEL_PHP || 'php' }}
+        if: steps.check.outputs.ready == 'true'
         run: |
-          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" bash -se <<EOF
+          $SSH_CMD "$D_USER@$D_HOST" bash -s <<EOF
           set -e
-          cd "$APP_PATH"
+          cd "$D_PATH"
           mkdir -p storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
-          $PHP_BIN artisan down --retry=15 || true
-          $PHP_BIN artisan migrate --force
-          [ -L public/storage ] || $PHP_BIN artisan storage:link
-          $PHP_BIN artisan optimize:clear
-          $PHP_BIN artisan optimize
-          $PHP_BIN artisan up
+          # First deploy: create the encryption key once (never change it afterwards: saved settings depend on it).
+          grep -qE '^APP_KEY=.+' .env || $D_PHP artisan key:generate --force
+          $D_PHP artisan down --retry=15 || true
+          $D_PHP artisan migrate --force
+          [ -L public/storage ] || $D_PHP artisan storage:link
+          $D_PHP artisan optimize:clear
+          $D_PHP artisan optimize
+          $D_PHP artisan up
+          echo "Deployed \$(date -u +%FT%TZ) at \$(pwd)"
+          echo "Web root for the domain must be: \$(pwd)/public"
           EOF
 
       - name: Bring the site back up if something failed
-        if: failure() && env.HAS_SECRETS == 'true'
-        env:
-          SSH_HOST: ${{ secrets.CPANEL_SSH_HOST }}
-          SSH_USER: ${{ secrets.CPANEL_SSH_USER }}
-          SSH_PORT: ${{ secrets.CPANEL_SSH_PORT || '22' }}
-          APP_PATH: ${{ secrets.CPANEL_APP_PATH }}
-          PHP_BIN: ${{ secrets.CPANEL_PHP || 'php' }}
-        run: ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "cd '$APP_PATH' && $PHP_BIN artisan up" || true
+        if: failure() && steps.check.outputs.ready == 'true'
+        run: $SSH_CMD "$D_USER@$D_HOST" "cd '$D_PATH' && test -f artisan && $D_PHP artisan up" || true
+
+      - name: Check the live site
+        if: steps.check.outputs.ready == 'true'
+        run: |
+          CODE=$(curl -s -o /tmp/home.html -w '%{http_code}' -L --max-time 30 "$D_SITE" || echo 000)
+          echo "$D_SITE answered HTTP $CODE"
+          if grep -qi 'manifest.webmanifest' /tmp/home.html; then
+            echo "The Zirak app is answering."
+          else
+            echo "::warning::$D_SITE does not show the Zirak app yet (HTTP $CODE). Point the domain's document root to the app's public folder (printed above)."
+            head -c 400 /tmp/home.html || true
+          fi
