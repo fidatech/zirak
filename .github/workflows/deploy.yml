@@ -11,9 +11,9 @@ name: deploy
 #   CPANEL_APP_PATH                      app folder on the server (default: "zirak" in the cPanel home folder)
 #   CPANEL_PHP                           PHP 8.3+ CLI (default "php"), e.g. /opt/cpanel/ea-php83/root/usr/bin/php
 #   SITE_URL (variable or secret)        checked after deploying (default https://zirak.af)
-# First deploy only (creates the server's .env when it has none; an existing .env is never changed):
-#   DB_DATABASE, DB_USERNAME, DB_PASSWORD   the MySQL database made in cPanel → MySQL Databases
-#   DB_HOST                                 optional, default localhost
+# First deploy: when the server has no .env, deploy/release.sh sets the server up with cPanel's uapi
+# (MySQL database + user with a random password, .env, admin account, cron, website PHP, document root).
+# Optional instead: DB_DATABASE, DB_USERNAME, DB_PASSWORD (+ DB_HOST) to use a database you made yourself.
 
 on:
   push:
@@ -113,14 +113,14 @@ jobs:
           EOF
           grep -q '^ENV_FILE=yes' /tmp/server.txt && echo "has_env=true" >> "$GITHUB_OUTPUT" || echo "has_env=false" >> "$GITHUB_OUTPUT"
 
-      - name: Create the server's .env (first deploy only)
+      - name: Create the server's .env from DB_* secrets (first deploy only, if those secrets are set)
         if: steps.check.outputs.ready == 'true' && steps.server.outputs.has_env != 'true'
         run: |
           if [ -z "$D_DB_NAME" ] || [ -z "$D_DB_USER" ] || [ -z "$D_DB_PASS" ]; then
-            echo "::error::The server has no $D_PATH/.env yet. Add the repository secrets DB_DATABASE, DB_USERNAME and DB_PASSWORD (from cPanel → MySQL Databases) and run the deploy again, or create the file by hand (docs/DEPLOY-CPANEL.md)."
-            exit 1
+            echo "No DB_* secrets: the release script will create the database and .env with cPanel's uapi."
+            exit 0
           fi
-          php .github/scripts/make-env.php .env.example > /tmp/server.env
+          php deploy/make-env.php .env.example > /tmp/server.env
           # Written to .env.new first and only moved into place if there is still no .env.
           $SSH_CMD "$D_USER@$D_HOST" "umask 077 && cat > '$D_PATH/.env.new' && cd '$D_PATH' && if [ -f .env ]; then rm .env.new; else mv .env.new .env; fi && chmod 600 .env" < /tmp/server.env
           rm -f /tmp/server.env
@@ -138,31 +138,13 @@ jobs:
           echo "Archive: $(du -h /tmp/release.tgz | cut -f1)"
           $SSH_CMD "$D_USER@$D_HOST" "cd '$D_PATH' && rm -rf .incoming && mkdir .incoming && tar xzf - -C .incoming" < /tmp/release.tgz
 
-      - name: Migrate and refresh caches
+      - name: Install the release (first deploy also sets up the server)
         if: steps.check.outputs.ready == 'true'
         run: |
-          $SSH_CMD "$D_USER@$D_HOST" bash -s <<EOF
-          set -e
-          cd "$D_PATH"
-          if [ -f artisan ]; then $D_PHP artisan down --retry=15 || true; fi
-          # Swap in the new release item by item. .env, storage/ and public/storage are never in the archive, so they stay.
-          for item in \$(ls -A .incoming); do
-            rm -rf "./\$item"
-            mv ".incoming/\$item" "./\$item"
-          done
-          rmdir .incoming
-          mkdir -p storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
-          # First deploy: create the encryption key once (never change it afterwards: saved settings depend on it).
-          grep -qE '^APP_KEY=.+' .env || $D_PHP artisan key:generate --force
-          $D_PHP artisan down --retry=15 || true
-          $D_PHP artisan migrate --force
-          [ -L public/storage ] || $D_PHP artisan storage:link
-          $D_PHP artisan optimize:clear
-          $D_PHP artisan optimize
-          $D_PHP artisan up
-          echo "Deployed \$(date -u +%FT%TZ) at \$(pwd)"
-          echo "Web root for the domain must be: \$(pwd)/public"
-          EOF
+          DOMAIN=$(printf '%s' "$D_SITE" | sed -E 's#^https?://##; s#/.*$##')
+          # deploy/release.sh: swap in the release, create database/.env/admin on first deploy, migrate, cron,
+          # website PHP version and document root. It never prints secrets.
+          $SSH_CMD "$D_USER@$D_HOST" "cd \"\$HOME\" && cd '$D_PATH' && cp .incoming/deploy/release.sh \"\$HOME/.zirak-release.sh\" && bash \"\$HOME/.zirak-release.sh\" '$D_PATH' '$D_PHP' '$DOMAIN'; rc=\$?; rm -f \"\$HOME/.zirak-release.sh\"; exit \$rc"
 
       - name: Bring the site back up if something failed
         if: failure() && steps.check.outputs.ready == 'true'
