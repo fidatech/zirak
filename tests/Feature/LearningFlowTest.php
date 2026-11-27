@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Certificate;
 use App\Models\Course;
+use App\Models\Lesson;
 use App\Models\User;
 use Database\Seeders\DemoContentSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -87,15 +88,57 @@ class LearningFlowTest extends TestCase
         $course = Course::where('slug', 'mobile-filmmaking')->firstOrFail();
         $chapter = $course->chapters->first();
         $previewLesson = $chapter->lessons->firstWhere('is_preview', true);
+        $locked = $course->chapters->last()->lessons->first();
+        $locked->update(['body' => 'SECRET-LESSON-TEXT', 'video_id' => 'secret-video-guid', 'prompt' => 'SECRET-PROMPT']);
+        $chapter2 = $course->chapters->last();
 
-        $this->actingAs($this->user);
-        $this->get(route('chapters.show', [$course, $chapter, 'learn', 'lesson' => $previewLesson->id]))->assertOk()->assertSee($previewLesson->title);
-        $this->get(route('chapters.show', [$course, $chapter, 'practice']))->assertForbidden();
+        // Guests and logged-in students who have not bought see the same thing.
+        foreach ([null, $this->user] as $who) {
+            $who ? $this->actingAs($who) : auth()->logout();
+            $this->get(route('chapters.show', [$course, $chapter, 'learn', 'lesson' => $previewLesson->id]))
+                ->assertOk()->assertSee($previewLesson->title)->assertSee(__('app.preview.banner_title'));
+            $this->get(route('chapters.show', [$course, $chapter2, 'learn', 'lesson' => $locked->id]))
+                ->assertOk()->assertSee($locked->title)->assertSee(__('app.preview.locked_title'))
+                ->assertDontSee('SECRET-LESSON-TEXT')->assertDontSee('secret-video-guid')->assertDontSee('SECRET-PROMPT');
+            $this->get(route('chapters.show', [$course, $chapter, 'practice']))->assertRedirect(route('courses.show', $course));
+            $this->get(route('chapters.show', [$course, $chapter, 'test']))->assertRedirect(route('courses.show', $course));
+        }
+
         $this->post(route('lessons.complete', [$course, $chapter, $previewLesson]))->assertForbidden();
         $this->postJson(route('practice.answer', [$course, $chapter]), ['question_id' => 1, 'choice' => 0])->assertForbidden();
 
-        $chapter2 = $course->chapters->last();
-        $this->get(route('chapters.show', [$course, $chapter2, 'learn']))->assertForbidden();
+        // The course page shows every lesson title, with a lock on the paid ones.
+        $this->get(route('courses.show', $course))->assertOk()->assertSee($locked->title)->assertSee(__('app.preview.watch'));
+    }
+
+    public function test_first_lesson_is_the_preview_when_the_teacher_chose_none(): void
+    {
+        $course = Course::where('slug', 'mobile-filmmaking')->firstOrFail();
+        Lesson::whereIn('chapter_id', $course->chapters->pluck('id'))->update(['is_preview' => false]);
+        $first = $course->chapters->first()->lessons->first();
+        $second = $course->chapters->first()->lessons->get(1);
+        $second->update(['body' => 'SECOND-LESSON-BODY']);
+
+        $this->assertSame([$first->id], $course->fresh()->previewLessonIds());
+        $this->get(route('chapters.show', [$course, $first->chapter_id, 'learn', 'lesson' => $second->id]))->assertOk()->assertDontSee('SECOND-LESSON-BODY');
+    }
+
+    public function test_drafts_are_not_previewable(): void
+    {
+        $course = Course::where('slug', 'mobile-filmmaking')->firstOrFail();
+        $course->update(['status' => 'draft']);
+        $this->get(route('chapters.show', [$course, $course->chapters->first()]))->assertNotFound();
+    }
+
+    public function test_signup_from_a_course_comes_back_to_it_but_never_leaves_the_site(): void
+    {
+        $this->get('/register?next=/courses/mobile-filmmaking')->assertOk();
+        $this->assertSame(url('/courses/mobile-filmmaking'), session('url.intended'));
+        session()->forget('url.intended');
+        $this->get('/register?next=//evil.example');
+        $this->get('/register?next=https://evil.example');
+        $this->get('/register?next=/\\evil.example');
+        $this->assertNull(session('url.intended'));
     }
 
     public function test_chapter_must_belong_to_course(): void

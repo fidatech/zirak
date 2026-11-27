@@ -31,6 +31,8 @@ class AuthController extends Controller
         $as = $request->query('as') === 'teacher' ? 'teacher' : 'student';
         if ($as === 'teacher') {
             $request->session()->put('url.intended', route('teach.apply'));
+        } elseif (is_string($next = $request->query('next')) && preg_match('#^/(?![/\\\\])[\w\-./?=&%]*$#', $next)) {
+            $request->session()->put('url.intended', url($next));
         }
 
         return view('auth.login', ['mode' => $mode, 'as' => old('as', $as)]);

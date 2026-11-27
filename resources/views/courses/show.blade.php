@@ -53,7 +53,7 @@
                 </div>
                 <x-tutor-panel :course="$course" />
             @else
-                <div class="shadow-soft overflow-hidden rounded-3xl bg-white ring-1 ring-slate-100">
+                <div id="buy" class="shadow-soft scroll-mt-24 overflow-hidden rounded-3xl bg-white ring-1 ring-slate-100">
                     <div class="hidden h-40 items-center justify-center lg:flex" style="background: radial-gradient(circle at 30% 20%, #fff 0, transparent 55%), {{ $soft }}">
                         <x-subject-art :category="$course->category" :size="88" />
                     </div>
@@ -71,8 +71,13 @@
                                 <button class="btn-primary rounded-xl py-3.5 text-lg font-bold">{{ $course->is_free ? __('app.course.enroll_free') : __('app.course.buy') }}</button>
                             </form>
                         @else
-                            <a href="{{ route('login') }}" class="btn-primary rounded-xl py-3.5 text-center text-lg font-bold">{{ __('app.course.login_to_buy') }}</a>
+                            <a href="{{ route('register', ['next' => '/courses/'.$course->getRouteKey()]) }}" class="btn-primary rounded-xl py-3.5 text-center text-lg font-bold">{{ __('app.course.login_to_buy') }}</a>
                         @endauth
+                        @if ($firstPreview)
+                            <a href="{{ route('chapters.show', [$course, $firstPreview->chapter_id, 'learn', 'lesson' => $firstPreview->id]) }}" class="flex items-center justify-center gap-2 rounded-xl border border-slate-200 py-3 font-bold text-ink hover:bg-slate-50">
+                                <x-svg-icon name="play" :size="18" class="text-brand-600" />{{ __('app.preview.watch') }}
+                            </a>
+                        @endif
                         <div class="border-t border-slate-100 pt-4 text-sm">
                             <div class="mb-3 font-black">{{ __('app.course.includes') }}</div>
                             <ul class="flex flex-col gap-2.5 text-slate-700">
@@ -159,11 +164,15 @@
                                 @foreach ($chapter->lessons as $lesson)
                                     <div class="flex items-center gap-3 border-t border-slate-100 px-5 py-3 text-sm">
                                         <x-svg-icon :name="$lesson->video_id ? 'play' : 'book'" :size="16" class="shrink-0 text-slate-400" />
-                                        <span class="flex-1">{{ $lesson->title }}</span>
-                                        @if ($lesson->is_preview && auth()->check())
-                                            <a href="{{ route('chapters.show', [$course, $chapter, 'learn', 'lesson' => $lesson->id]) }}" class="font-bold text-brand-600 underline-offset-4 hover:underline">{{ __('app.course.preview') }}</a>
-                                        @elseif ($lesson->is_preview)
-                                            <span class="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-700">{{ __('app.course.preview') }}</span>
+                                        @if ($enrolled || in_array($lesson->id, $previewIds))
+                                            <a href="{{ route('chapters.show', [$course, $chapter, 'learn', 'lesson' => $lesson->id]) }}" class="flex-1 hover:text-brand-600">{{ $lesson->title }}</a>
+                                        @else
+                                            <span class="flex-1">{{ $lesson->title }}</span>
+                                        @endif
+                                        @if ($enrolled || in_array($lesson->id, $previewIds))
+                                            <a href="{{ route('chapters.show', [$course, $chapter, 'learn', 'lesson' => $lesson->id]) }}" class="font-bold text-brand-600 underline-offset-4 hover:underline">{{ $enrolled ? __('app.preview.open') : __('app.course.preview') }}</a>
+                                        @else
+                                            <x-svg-icon name="lock" :size="14" class="shrink-0 text-slate-400" />
                                         @endif
                                         <span class="shrink-0 text-slate-500">{{ duration($lesson->minutes()) }}</span>
                                     </div>

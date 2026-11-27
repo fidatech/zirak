@@ -33,6 +33,8 @@ class CourseController extends Controller
             'lessonCount' => $course->chapters->sum(fn ($c) => $c->lessons->count()),
             'minutes' => (int) ceil($course->chapters->sum(fn ($c) => $c->lessons->sum('duration_seconds')) / 60),
             'students' => $course->enrollments()->count(),
+            'previewIds' => $previewIds = $course->previewLessonIds(),
+            'firstPreview' => $enrolled ? null : $course->chapters->flatMap->lessons->firstWhere('id', $previewIds[0] ?? 0),
             'questionCount' => Question::whereIn('chapter_id', $course->chapters->pluck('id'))->count(),
             'related' => Course::published()->forCards()->where('category_id', $course->category_id)->whereKeyNot($course->id)
                 ->orderByDesc('is_featured')->take(4)->get(),
