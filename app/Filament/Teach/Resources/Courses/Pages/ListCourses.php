@@ -12,6 +12,6 @@ class ListCourses extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [CreateAction::make()->label('New course')];
+        return [CreateAction::make()->label(__('teach.course.new'))];
     }
 }

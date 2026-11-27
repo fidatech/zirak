@@ -20,6 +20,15 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Dari and Pashto fall back to Persian ("fa") for package strings (Filament ships "fa" but not "prs"/"ps"), then English.
+        $this->app['translator']->determineLocalesUsing(function (array $locales) {
+            if (in_array($locales[0] ?? null, ['prs', 'ps'], true)) {
+                array_splice($locales, 1, 0, ['fa']);
+            }
+
+            return $locales;
+        });
+
         // Keys saved in Admin → Settings override .env.
         $this->app->make(Settings::class)->apply();
     }

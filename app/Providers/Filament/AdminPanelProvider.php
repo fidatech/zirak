@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Support\LocalAvatarProvider;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -29,6 +30,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->brandName('Zirak Admin')
             ->favicon('/icons/icon-192.png')
+            ->defaultAvatarProvider(LocalAvatarProvider::class)
             ->colors([
                 'primary' => Color::Teal,
             ])

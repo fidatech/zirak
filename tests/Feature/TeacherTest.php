@@ -25,6 +25,7 @@ use App\Services\EnrollmentService;
 use App\Services\TeacherEarnings;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -43,8 +44,8 @@ class TeacherTest extends TestCase
     {
         parent::setUp();
         $this->admin = User::factory()->create(['role' => UserRole::Admin]);
-        $this->teacher = User::factory()->create(['role' => UserRole::Instructor, 'name' => 'Maryam Ahmadi', 'nickname' => 'Ustad Maryam', 'phone' => '+93791112233']);
-        $this->otherTeacher = User::factory()->create(['role' => UserRole::Instructor]);
+        $this->teacher = User::factory()->create(['role' => UserRole::Instructor, 'name' => 'Maryam Ahmadi', 'nickname' => 'Ustad Maryam', 'phone' => '+93791112233', 'locale' => 'en']);
+        $this->otherTeacher = User::factory()->create(['role' => UserRole::Instructor, 'locale' => 'en']);
     }
 
     private function course(User $teacher, array $attrs = []): Course
@@ -275,6 +276,41 @@ class TeacherTest extends TestCase
 
         $this->actingAs($this->teacher)->get('/teach/student-questions')->assertOk()
             ->assertSee('How do I pick colours?')->assertDontSee('Question for someone else');
+    }
+
+    public function test_teacher_area_speaks_the_teachers_language(): void
+    {
+        $course = $this->course($this->teacher, ['status' => CourseStatus::Published, 'teacher_share' => 60]);
+        $buyer = User::factory()->create();
+        $order = Order::create(['user_id' => $buyer->id, 'course_id' => $course->id, 'status' => 'pending', 'gateway' => 'hesabpay', 'currency' => 'AFN', 'subtotal' => 1000, 'total' => 1000]);
+        app(EnrollmentService::class)->markPaid($order, 'tx-lang');
+
+        // Dari: right-to-left, our own labels and Filament's (via Persian).
+        $this->teacher->update(['locale' => 'prs']);
+        $this->actingAs($this->teacher)->get('/teach/courses')->assertOk()
+            ->assertSee('dir="rtl"', false)->assertSee('دوره‌های من')->assertSee('دوره جدید')
+            ->assertSee('Vazirmatn', false)->assertDontSee('fonts.bunny.net', false)->assertDontSee('ui-avatars.com', false);
+        $this->get('/teach/sales')->assertSee('۶۰۰ افغانی')->assertSee('۶۰٪');
+
+        // Pashto, chosen from the language menu and saved on the profile.
+        // (The side menu is built once per process, so check page content, which is built on every request.)
+        $this->get('/teach/courses?lang=ps')->assertOk()->assertSee('dir="rtl"', false)->assertSee('نوی کورس')->assertSee('لټون');
+        $this->assertSame('ps', $this->teacher->fresh()->locale);
+        $this->get('/teach/courses/'.$course->getRouteKey().'/edit')->assertSee('بدلونونه ساتل');
+
+        // English.
+        $this->get('/teach/courses?lang=en')->assertSee('dir="ltr"', false)->assertSee('New course');
+
+        // Admin stays in English whatever the admin's own language is.
+        $this->admin->update(['locale' => 'ps']);
+        $this->actingAs($this->admin)->get('/admin/courses')->assertOk()->assertSee('dir="ltr"', false)->assertDontSee('زما کورسونه');
+    }
+
+    public function test_teacher_language_files_have_the_same_keys(): void
+    {
+        $keys = fn (string $locale) => array_keys(Arr::dot(require lang_path("{$locale}/teach.php")));
+        $this->assertSame($keys('en'), $keys('prs'));
+        $this->assertSame($keys('en'), $keys('ps'));
     }
 
     public function test_public_teacher_page_never_shows_the_phone(): void

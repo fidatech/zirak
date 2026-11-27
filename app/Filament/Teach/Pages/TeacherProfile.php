@@ -19,9 +19,15 @@ class TeacherProfile extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserCircle;
 
-    protected static ?string $navigationLabel = 'My public profile';
+    public function getTitle(): string
+    {
+        return __('teach.profile.title');
+    }
 
-    protected static ?string $title = 'My public profile';
+    public static function getNavigationLabel(): string
+    {
+        return __('teach.nav.profile');
+    }
 
     protected static ?string $slug = 'profile';
 
@@ -37,11 +43,11 @@ class TeacherProfile extends Page
     public function form(Schema $schema): Schema
     {
         return $schema->statePath('data')->components([
-            TextInput::make('name')->label('Full name')->required()->maxLength(120),
-            TextInput::make('nickname')->label('Name shown to students (optional)')->maxLength(60)
-                ->helperText('If set, students see this instead of your full name. Your phone number is never shown.'),
-            TextInput::make('teacher_headline')->label('Headline')->maxLength(120)->placeholder('e.g. Graphic designer, 8 years of experience'),
-            Textarea::make('teacher_bio')->label('About you')->rows(6)->maxLength(2000),
+            TextInput::make('name')->label(__('teach.profile.full_name'))->required()->maxLength(120),
+            TextInput::make('nickname')->label(__('teach.profile.nickname'))->maxLength(60)
+                ->helperText(__('teach.profile.nickname_help')),
+            TextInput::make('teacher_headline')->label(__('teach.profile.headline'))->maxLength(120)->placeholder(__('teach.profile.headline_hint')),
+            Textarea::make('teacher_bio')->label(__('teach.profile.bio'))->rows(6)->maxLength(2000),
         ]);
     }
 
@@ -50,8 +56,8 @@ class TeacherProfile extends Page
         return $schema->components([
             Form::make([EmbeddedSchema::make('form')])->id('form')->livewireSubmitHandler('save')
                 ->footer([Actions::make([
-                    Action::make('save')->label('Save')->submit('save'),
-                    Action::make('view')->label('View my public page')->color('gray')
+                    Action::make('save')->label(__('teach.profile.save'))->submit('save'),
+                    Action::make('view')->label(__('teach.profile.view'))->color('gray')
                         ->url(fn () => route('teachers.show', auth()->user()))->openUrlInNewTab(),
                 ])]),
         ]);
@@ -60,6 +66,6 @@ class TeacherProfile extends Page
     public function save(): void
     {
         auth()->user()->update($this->form->getState());
-        Notification::make()->title('Profile saved')->success()->send();
+        Notification::make()->title(__('teach.profile.saved'))->success()->send();
     }
 }

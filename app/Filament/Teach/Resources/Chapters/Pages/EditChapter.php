@@ -14,16 +14,16 @@ class EditChapter extends EditRecord
     public function getBreadcrumbs(): array
     {
         return [
-            CourseResource::getUrl('index') => 'My courses',
+            CourseResource::getUrl('index') => __('teach.nav.courses'),
             CourseResource::getUrl('edit', ['record' => $this->record->course]) => $this->record->course->title,
-            'Chapter',
+            __('teach.chapter.breadcrumb'),
         ];
     }
 
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('back')->label('Back to course')->color('gray')->icon('heroicon-o-arrow-uturn-left')
+            Action::make('back')->label(__('teach.chapter.back'))->color('gray')->icon('heroicon-o-arrow-uturn-left')
                 ->url(fn () => CourseResource::getUrl('edit', ['record' => $this->record->course])),
         ];
     }

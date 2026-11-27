@@ -125,6 +125,20 @@
       "assets/noto-sans-arabic-latin-700-normal-DST6Nu2E.woff"
     ]
   },
+  "resources/css/teach-font.css": {
+    "file": "assets/teach-font-J6eupxwj.css",
+    "name": "teach-font",
+    "names": [
+      "teach-font.css"
+    ],
+    "src": "resources/css/teach-font.css",
+    "isEntry": true,
+    "assets": [
+      "assets/vazirmatn-arabic-wght-normal-Cafbb7Zc.woff2",
+      "assets/vazirmatn-latin-ext-wght-normal-tDTa1Fj6.woff2",
+      "assets/vazirmatn-latin-wght-normal-BFexNX-K.woff2"
+    ]
+  },
   "resources/js/app.js": {
     "file": "assets/app-CobL7G-d.js",
     "name": "app",

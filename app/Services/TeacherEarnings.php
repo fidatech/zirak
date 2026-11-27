@@ -64,6 +64,10 @@ class TeacherEarnings
     /** Formats integer money: AFN as whole afghanis, USD from cents. */
     public static function money(int $amount, string $currency): string
     {
+        if (in_array(app()->getLocale(), ['prs', 'ps'], true)) {
+            return $currency === 'USD' ? n(number_format($amount / 100, 2)).' $' : afn($amount);
+        }
+
         return $currency === 'USD' ? '$'.number_format($amount / 100, 2) : number_format($amount).' AFN';
     }
 }
