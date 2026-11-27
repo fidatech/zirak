@@ -97,7 +97,7 @@ jobs:
           VERSION=\$($D_PHP -r 'echo PHP_VERSION;' 2>/dev/null || echo none)
           echo "PHP: \$VERSION ($D_PHP)"
           $D_PHP -r 'exit(version_compare(PHP_VERSION, "8.3.0", ">=") ? 0 : 1);' || { echo "::error::PHP 8.3 or newer is needed. In cPanel → MultiPHP choose 8.3, or set the CPANEL_PHP secret, e.g. /opt/cpanel/ea-php83/root/usr/bin/php"; exit 1; }
-          command -v rsync >/dev/null || { echo "::error::rsync is not installed on the server. Ask the host to enable it."; exit 1; }
+          command -v tar >/dev/null || { echo "::error::tar is not available on the server."; exit 1; }
           mkdir -p "$D_PATH"
           test -f "$D_PATH/.env" || { echo "::error::$D_PATH/.env is missing on the server. Create it once (docs/DEPLOY-CPANEL.md, step 5): database name, user and password, APP_URL=https://zirak.af, APP_ENV=production, APP_DEBUG=false."; exit 1; }
           echo "Found $D_PATH/.env"
@@ -106,11 +106,13 @@ jobs:
       - name: Upload files
         if: steps.check.outputs.ready == 'true'
         run: |
-          rsync -az --delete -e "$SSH_CMD" \
-            --exclude '.git/' --exclude '.github/' --exclude 'node_modules/' --exclude 'tests/' \
-            --exclude '.env' --exclude 'storage/' --exclude 'public/storage' \
-            --exclude 'bootstrap/cache/*.php' --exclude 'database/*.sqlite' \
-            ./ "$D_USER@$D_HOST:$D_PATH/"
+          # The server has no rsync: send one compressed archive and unpack it next to the app.
+          tar czf /tmp/release.tgz \
+            --exclude='./.git' --exclude='./.github' --exclude='./node_modules' --exclude='./tests' \
+            --exclude='./.env' --exclude='./storage' --exclude='./public/storage' \
+            --exclude='./bootstrap/cache/*.php' --exclude='./database/*.sqlite' .
+          echo "Archive: $(du -h /tmp/release.tgz | cut -f1)"
+          $SSH_CMD "$D_USER@$D_HOST" "cd '$D_PATH' && rm -rf .incoming && mkdir .incoming && tar xzf - -C .incoming" < /tmp/release.tgz
 
       - name: Migrate and refresh caches
         if: steps.check.outputs.ready == 'true'
@@ -118,6 +120,13 @@ jobs:
           $SSH_CMD "$D_USER@$D_HOST" bash -s <<EOF
           set -e
           cd "$D_PATH"
+          if [ -f artisan ]; then $D_PHP artisan down --retry=15 || true; fi
+          # Swap in the new release item by item. .env, storage/ and public/storage are never in the archive, so they stay.
+          for item in \$(ls -A .incoming); do
+            rm -rf "./\$item"
+            mv ".incoming/\$item" "./\$item"
+          done
+          rmdir .incoming
           mkdir -p storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache
           # First deploy: create the encryption key once (never change it afterwards: saved settings depend on it).
           grep -qE '^APP_KEY=.+' .env || $D_PHP artisan key:generate --force
