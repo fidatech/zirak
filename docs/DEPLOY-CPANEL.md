@@ -211,6 +211,9 @@ Until the secrets exist, the workflow only prints a note and changes nothing.
 > or the `CPANEL_SSH_*` names. Without `CPANEL_APP_PATH` the app goes into a `zirak` folder in your cPanel home
 > folder (`/home/<user>/zirak`); point the domain's document root at `/home/<user>/zirak/public`. Every deploy prints
 > which settings it can see (never their values), checks PHP and `.env` on the server, and finally loads the site.
-> **First deploy:** create the MySQL database and user in cPanel → MySQL Databases, then add the repository secrets
-> `DB_DATABASE`, `DB_USERNAME` and `DB_PASSWORD`. The deploy writes the server's `.env` from them once (production,
-> MySQL, a new `APP_KEY`) and never touches an existing `.env`.
+> **First deploy sets the server up by itself** (`deploy/release.sh`, using cPanel's `uapi`): a MySQL database and user
+> `<cpuser>_zirak` with a random password, the `.env` (production, new `APP_KEY`), an admin account `admin@<domain>`
+> whose password is written to `~/zirak-admin-login.txt` (read it in File Manager, then delete it), the cron job, PHP 8.3+
+> for the website, and the domain's document root (old contents are moved to `<docroot>.before-zirak-<date>`, never
+> deleted). Nothing secret is printed in the deploy log. To use your own database instead, set `DB_DATABASE`,
+> `DB_USERNAME` and `DB_PASSWORD` secrets before the first deploy.
