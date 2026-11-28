@@ -19,7 +19,6 @@
         </div>
 
         <aside class="sky relative hidden w-[44%] max-w-2xl flex-col justify-between overflow-hidden p-12 text-white lg:flex" aria-hidden="true">
-            <div class="pointer-events-none absolute -end-24 -top-24 h-80 w-80 rounded-full bg-white/10 blur-2xl"></div>
             <div class="relative">
                 <span class="glass inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold"><x-svg-icon name="sparkle" :size="16" />{{ __('app.landing.badge') }}</span>
                 <h2 class="mt-6 max-w-md text-4xl font-black leading-tight tracking-tight">{{ __('app.auth.side_title') }}</h2>
@@ -32,8 +31,8 @@
             <div class="glass relative mt-10 rounded-3xl p-6">
                 <p class="text-sm font-semibold text-white/80">{{ __('app.auth.side_path') }}</p>
                 <ol class="mt-4 grid grid-cols-4 gap-2 text-center text-sm font-bold">
-                    @foreach (['📖' => 'path_learn', '✍️' => 'path_practice', '✅' => 'path_test', '🏅' => 'path_certificate'] as $emoji => $key)
-                        <li class="flex flex-col items-center gap-2 rounded-2xl bg-white/15 px-2 py-3"><span class="text-2xl">{{ $emoji }}</span>{{ __('app.auth.'.$key) }}</li>
+                    @foreach (['play' => 'path_learn', 'pencil' => 'path_practice', 'chart' => 'path_test', 'award' => 'path_certificate'] as $icon => $key)
+                        <li class="flex flex-col items-center gap-2 rounded-2xl bg-white/15 px-2 py-3"><span class="flex h-9 w-9 items-center justify-center rounded-full bg-accent-400 text-accent-900"><x-svg-icon :name="$icon" :size="18" /></span>{{ __('app.auth.'.$key) }}</li>
                     @endforeach
                 </ol>
             </div>

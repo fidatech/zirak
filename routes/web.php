@@ -7,6 +7,7 @@ use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LevelController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ProfileController;
@@ -36,6 +37,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::get('/plans', [PlanController::class, 'show'])->name('plans');
+Route::get('/levels', LevelController::class)->name('levels');
 
 // Lesson pages are public so anyone can watch the free previews; the controller locks the rest.
 Route::get('/courses/{course}/chapters/{chapter}/{tab?}', [ChapterController::class, 'show'])

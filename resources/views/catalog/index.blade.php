@@ -1,10 +1,9 @@
-@php($top = auth()->check() ? 'pt-8 lg:pt-10' : 'pt-28 lg:pt-32')
+@php($top = 'pt-8 lg:pt-10')
 @php($sorts = ['newest' => 'sort_newest', 'popular' => 'sort_popular', 'price_asc' => 'sort_price_low', 'price_desc' => 'sort_price_high'])
 @php($pill = 'flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50 has-[:checked]:font-bold has-[:checked]:text-brand-700')
 <x-public-page :title="$category?->name() ?? __('app.catalog.title')">
     {{-- Header band --}}
     <section class="sky relative overflow-hidden pb-10 text-white {{ $top }}">
-        <div aria-hidden="true" class="pointer-events-none absolute -end-20 top-10 h-40 w-96 rounded-full bg-white/20 blur-3xl"></div>
         <div class="relative mx-auto flex max-w-6xl flex-col gap-4 px-5">
             <h1 class="text-3xl font-black leading-[1.4] sm:text-4xl">{{ $category?->name() ?? __('app.catalog.title') }}</h1>
             <p class="max-w-2xl text-white/90">{{ __('app.catalog.intro') }}</p>

@@ -19,7 +19,7 @@
         <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div class="flex min-w-0 flex-col gap-5">
                 {{-- Welcome banner --}}
-                <section class="relative overflow-hidden rounded-2xl bg-gradient-to-l from-brand-100 via-white to-pink-50 p-5 ring-1 ring-slate-100 shadow-soft">
+                <section class="relative overflow-hidden rounded-2xl bg-brand-50 p-5 ring-1 ring-slate-100 shadow-soft">
                     <div class="relative z-10 max-w-[75%]">
                         <h1 class="text-xl font-black sm:text-2xl">{{ __('app.dash.welcome', ['name' => $user->displayName()]) }}</h1>
                         <p class="mt-1 text-sm text-slate-600 sm:text-base">{{ __('app.dash.welcome_text') }}</p>
@@ -33,7 +33,7 @@
                     <x-panel :title="__('app.dash.continue')" icon="play">
                         <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
                             @php([$soft] = $next['course']->category->palette())
-                            <div class="flex h-28 w-full shrink-0 items-center justify-center rounded-xl sm:w-44" style="background: radial-gradient(circle at 30% 20%, #fff 0, transparent 55%), {{ $soft }}">
+                            <div class="flex h-28 w-full shrink-0 items-center justify-center rounded-xl sm:w-44" style="background: {{ $soft }}">
                                 <x-subject-art :category="$next['course']->category" :size="64" />
                             </div>
                             <div class="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -47,7 +47,6 @@
                     </x-panel>
                 @elseif ($myCourses->isEmpty())
                     <section class="bg-brand-gradient relative overflow-hidden rounded-2xl p-6 text-white shadow-soft">
-                        <div aria-hidden="true" class="absolute -end-10 -top-10 h-40 w-40 rounded-full bg-white/15 blur-2xl"></div>
                         <h2 class="relative text-xl font-black">{{ __('app.dash.empty_title') }}</h2>
                         <p class="relative mt-1 text-white/90">{{ __('app.dash.empty_text') }}</p>
                         <a href="{{ route('catalog') }}" class="relative mt-4 inline-block rounded-xl bg-white px-5 py-2.5 font-bold text-ink">{{ __('app.dash.browse') }}</a>

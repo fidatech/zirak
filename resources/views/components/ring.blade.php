@@ -4,7 +4,7 @@
 @php($v = max(0, min(100, (int) $value)))
 <div {{ $attributes->merge(['class' => 'relative shrink-0']) }} style="width: {{ $size }}px; height: {{ $size }}px" role="img" aria-label="{{ pct($v) }}">
     <svg width="{{ $size }}" height="{{ $size }}" viewBox="0 0 {{ $size }} {{ $size }}" class="-rotate-90">
-        <defs><linearGradient id="zirak-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6D5DFC"/><stop offset="1" stop-color="#22C3E6"/></linearGradient></defs>
+        <defs><linearGradient id="zirak-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4B2A99"/><stop offset="1" stop-color="#4B2A99"/></linearGradient></defs>
         <circle cx="{{ $size / 2 }}" cy="{{ $size / 2 }}" r="{{ $r }}" fill="none" stroke="#EEF0F6" stroke-width="{{ $stroke }}"/>
         <circle cx="{{ $size / 2 }}" cy="{{ $size / 2 }}" r="{{ $r }}" fill="none" stroke="{{ $color }}" stroke-width="{{ $stroke }}" stroke-linecap="round"
                 stroke-dasharray="{{ $c }}" stroke-dashoffset="{{ $c * (1 - $v / 100) }}"/>

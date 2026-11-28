@@ -1,11 +1,9 @@
 @php([$soft, $strong, $dark] = $course->category->palette())
-@php($guestTop = auth()->check() ? 'pt-8' : 'pt-28 lg:pt-32')
+@php($guestTop = 'pt-8')
 @php($teacherName = $course->teacher?->publicName() ?? $course->instructor_name)
 <x-public-page :title="$course->title">
     {{-- ================= Dark header (Udemy-style) ================= --}}
     <section class="relative overflow-hidden bg-ink text-white {{ $guestTop }} pb-10 {{ auth()->check() ? 'lg:min-h-[20rem]' : 'lg:min-h-[27rem]' }}">
-        <div aria-hidden="true" class="pointer-events-none absolute -start-20 -top-20 h-72 w-72 rounded-full bg-brand-600/40 blur-3xl"></div>
-        <div aria-hidden="true" class="pointer-events-none absolute bottom-0 end-1/3 h-56 w-56 rounded-full bg-accent-500/25 blur-3xl"></div>
         <div class="relative mx-auto flex max-w-6xl flex-col gap-3 px-5 lg:pe-[24rem]">
             <nav class="flex flex-wrap items-center gap-2 text-sm font-semibold text-brand-200">
                 <a href="{{ route('catalog') }}" class="hover:text-white">{{ __('app.nav.courses') }}</a><span class="opacity-50">/</span>
@@ -54,7 +52,7 @@
                 <x-tutor-panel :course="$course" />
             @else
                 <div id="buy" class="shadow-soft scroll-mt-24 overflow-hidden rounded-3xl bg-white ring-1 ring-slate-100">
-                    <div class="hidden h-40 items-center justify-center lg:flex" style="background: radial-gradient(circle at 30% 20%, #fff 0, transparent 55%), {{ $soft }}">
+                    <div class="hidden h-40 items-center justify-center lg:flex" style="background: {{ $soft }}">
                         <x-subject-art :category="$course->category" :size="88" />
                     </div>
                     <div class="flex flex-col gap-4 p-5">

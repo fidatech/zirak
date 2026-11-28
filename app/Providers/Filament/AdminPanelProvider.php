@@ -37,7 +37,7 @@ class AdminPanelProvider extends PanelProvider
             // Lesson video uploads (tus → Bunny Stream). Only the panels load this script.
             ->renderHook(PanelsRenderHook::BODY_END, fn () => Blade::render("@vite('resources/js/video-upload.js')"))
             ->defaultAvatarProvider(LocalAvatarProvider::class)
-            ->colors(['primary' => Color::hex('#5B4CE6')])
+            ->colors(['primary' => Color::hex('#4B2A99')])
             ->viteTheme('resources/css/filament/zirak/theme.css')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
