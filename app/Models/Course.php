@@ -66,6 +66,28 @@ class Course extends Model
         return $this->hasMany(Order::class);
     }
 
+    /**
+     * Lessons anyone may open before buying (like Udemy's "Preview").
+     * Teachers choose them with "Free preview"; if they chose none, the course's first lesson is the preview.
+     *
+     * @return list<int>
+     */
+    public function previewLessonIds(): array
+    {
+        return $this->previewIds ??= (function () {
+            $lessons = Lesson::query()->join('chapters', 'chapters.id', '=', 'lessons.chapter_id')
+                ->where('chapters.course_id', $this->id)
+                ->orderBy('chapters.sort')->orderBy('chapters.id')->orderBy('lessons.sort')->orderBy('lessons.id')
+                ->get(['lessons.id', 'lessons.is_preview']);
+            $chosen = $lessons->where('is_preview', true)->pluck('id')->map(fn ($id) => (int) $id)->values()->all();
+
+            return $chosen ?: $lessons->take(1)->pluck('id')->map(fn ($id) => (int) $id)->all();
+        })();
+    }
+
+    /** @var list<int>|null */
+    private ?array $previewIds = null;
+
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', CourseStatus::Published);

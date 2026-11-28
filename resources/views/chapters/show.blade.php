@@ -21,6 +21,15 @@
                     <span x-show="failed" class="text-red-700">{{ __('app.offline.save_failed') }}</span>
                 </div>
             @endif
+            @unless ($enrolled)
+                <nav class="grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1 text-sm" aria-label="{{ $chapter->title }}">
+                    @foreach (['learn', 'practice', 'test'] as $i => $t)
+                        <a href="{{ $t === 'learn' ? request()->fullUrl() : route('courses.show', $course).'#buy' }}" @class(['flex items-center justify-center gap-1 rounded-lg px-4 py-2', 'bg-brand-600 font-bold text-white' => $t === 'learn', 'text-slate-500' => $t !== 'learn'])>
+                            @if ($t !== 'learn')<x-svg-icon name="lock" :size="14" />@endif{{ n($i + 1) }}{{ sep() }}{{ __('app.chapter.'.$t) }}
+                        </a>
+                    @endforeach
+                </nav>
+            @endunless
             @if ($enrolled)
                 <nav class="grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1 text-sm" aria-label="{{ $chapter->title }}">
                     @foreach (['learn', 'practice', 'test'] as $i => $t)
@@ -35,11 +44,29 @@
         </div>
     </div>
 
+    @unless ($enrolled)
+        <div class="bg-brand-gradient text-white">
+            <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 lg:px-8">
+                <span class="flex items-center gap-2 font-bold"><x-svg-icon name="play" :size="18" />{{ __('app.preview.banner_title') }}</span>
+                <span class="text-sm text-white/90">{{ __('app.preview.banner_text', ['count' => n($lessonTotal)]) }}</span>
+                <a href="{{ route('courses.show', $course) }}#buy" class="ms-auto rounded-xl bg-white px-4 py-2 text-sm font-bold text-brand-700 shadow-sm">{{ $course->is_free ? __('app.course.enroll_free') : __('app.preview.unlock', ['price' => afn($course->price_afn)]) }}</a>
+            </div>
+        </div>
+    @endunless
+
     <div class="mx-auto max-w-6xl px-4 py-5 lg:px-8">
         @if ($tab === 'learn')
             <div class="flex flex-col gap-5 lg:flex-row lg:items-start">
                 <div class="flex min-w-0 flex-1 flex-col gap-4">
-                    @if ($lesson)
+                    @if ($lesson && $locked)
+                        <div class="flex aspect-video flex-col items-center justify-center gap-3 rounded-2xl bg-ink p-6 text-center text-white">
+                            <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10"><x-svg-icon name="lock" :size="26" /></span>
+                            <p class="text-lg font-bold">{{ __('app.preview.locked_title') }}</p>
+                            <p class="max-w-sm text-sm text-white/75">{{ __('app.preview.locked_text') }}</p>
+                            <a href="{{ route('courses.show', $course) }}#buy" class="btn-primary mt-1 rounded-xl px-6 py-3 font-bold">{{ $course->is_free ? __('app.course.enroll_free') : __('app.preview.unlock', ['price' => afn($course->price_afn)]) }}</a>
+                        </div>
+                        <h1 class="text-2xl font-extrabold">{{ $lesson->title }}</h1>
+                    @elseif ($lesson)
                         @if ($lesson->video_id && config('services.bunny.library_id') && data_saver())
                             <div class="aspect-video overflow-hidden rounded-2xl bg-slate-900" x-data="{ play: false }" data-video-saver>
                                 <template x-if="play">
@@ -95,21 +122,40 @@
                 </div>
                 <div class="flex w-full flex-col gap-4 lg:w-80 lg:shrink-0">
                 <aside class="rounded-2xl border border-slate-200 bg-white p-3">
-                    <div class="px-2 pb-2 font-extrabold">{{ __('app.chapter.learn') }}{{ sep() }}{{ n($state['lessons_done']) }}/{{ n($state['lessons_total']) }}</div>
+                    <div class="px-2 pb-2 font-extrabold">@if ($enrolled){{ __('app.chapter.learn') }}{{ sep() }}{{ n($state['lessons_done']) }}/{{ n($state['lessons_total']) }}@else{{ __('app.preview.this_chapter') }}@endif</div>
                     @foreach ($lessons as $i => $l)
                         <a href="{{ route('chapters.show', [$course, $chapter, 'learn', 'lesson' => $l->id]) }}" @if($lesson?->is($l)) aria-current="page" @endif @class(['flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm', 'bg-brand-100 font-bold text-brand-600' => $lesson?->is($l), 'text-slate-700 hover:bg-slate-50' => ! $lesson?->is($l)])>
-                            @if (in_array($l->id, $completed))
+                            @if (! $enrolled)
+                                <span @class(['flex h-6 w-6 shrink-0 items-center justify-center rounded-full', 'bg-brand-50 text-brand-600' => in_array($l->id, $open), 'bg-slate-100 text-slate-400' => ! in_array($l->id, $open)])><x-svg-icon :name="in_array($l->id, $open) ? 'play' : 'lock'" :size="12" /></span>
+                            @elseif (in_array($l->id, $completed))
                                 <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white"><x-svg-icon name="check" :size="13" /></span>
                             @else
                                 <span class="h-6 w-6 shrink-0 rounded-full border-2 border-slate-300"></span>
                             @endif
                             <span class="flex-1">{{ n($i + 1) }}. {{ $l->title }}</span>
+                            @if (! $enrolled && in_array($l->id, $open))<span class="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-bold text-brand-700">{{ __('app.course.preview') }}</span>@endif
                             <span class="text-xs text-slate-500">{{ n($l->minutes()) }}</span>
                         </a>
                     @endforeach
                 </aside>
                 @if ($enrolled)
                     <x-tutor-panel :course="$course" :lesson="$lesson" />
+                @else
+                    <aside class="rounded-2xl border border-slate-200 bg-white p-3">
+                        <div class="px-2 pb-2 font-extrabold">{{ __('app.preview.all_chapters') }}</div>
+                        @foreach ($chapters as $ci => $c)
+                            <a href="{{ route('chapters.show', [$course, $c]) }}" @class(['flex items-center gap-3 rounded-xl px-3 py-2 text-sm', 'bg-slate-50 font-bold text-ink' => $c->is($chapter), 'text-slate-700 hover:bg-slate-50' => ! $c->is($chapter)])>
+                                <span class="w-5 shrink-0 text-center text-slate-400">{{ n($ci + 1) }}</span>
+                                <span class="flex-1">{{ $c->title }}</span>
+                                <span class="text-xs text-slate-500">{{ n($c->lessons_count) }} {{ __('app.lessons') }}</span>
+                            </a>
+                        @endforeach
+                    </aside>
+                    <div class="shadow-soft rounded-2xl bg-white p-5 ring-1 ring-slate-100">
+                        <div class="text-2xl font-black">{{ $course->is_free ? __('app.free') : afn($course->price_afn) }}</div>
+                        <p class="mt-1 text-sm text-slate-600">{{ __('app.preview.buy_text') }}</p>
+                        <a href="{{ route('courses.show', $course) }}#buy" class="btn-primary mt-4 block rounded-xl py-3 text-center font-bold">{{ $course->is_free ? __('app.course.enroll_free') : __('app.preview.unlock', ['price' => afn($course->price_afn)]) }}</a>
+                    </div>
                 @endif
                 </div>
             </div>

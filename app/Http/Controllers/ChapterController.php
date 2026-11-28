@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CourseStatus;
 use App\Enums\QuestionKind;
 use App\Models\Chapter;
 use App\Models\Course;
@@ -21,19 +22,34 @@ class ChapterController extends Controller
 {
     public function __construct(private ProgressService $progress, private CertificateIssuer $certificates) {}
 
-    public function show(Request $request, Course $course, Chapter $chapter, string $tab = 'learn'): View
+    public function show(Request $request, Course $course, Chapter $chapter, string $tab = 'learn'): View|RedirectResponse
     {
         abort_unless(in_array($tab, ['learn', 'practice', 'test'], true), 404);
         $user = $request->user();
-        $enrolled = $user->isEnrolledIn($course);
+        abort_unless($course->status === CourseStatus::Published || $user?->isAdmin()
+            || ($course->teacher_id && $course->teacher_id === $user?->id), 404);
+        $enrolled = $user?->isEnrolledIn($course) ?? false;
 
         $chapter->load('lessons');
         $lessons = $chapter->lessons;
+        $chapters = $course->chapters()->withCount('lessons')->get();
 
         if (! $enrolled) {
-            // Not bought yet: only free preview lessons in the Learn tab.
-            abort_unless($tab === 'learn' && $lessons->contains('is_preview', true), 403);
-            $lessons = $lessons->where('is_preview', true)->values();
+            // Not bought yet: every lesson title is visible, only the preview lessons open. No practice or test.
+            if ($tab !== 'learn') {
+                return redirect()->route('courses.show', $course)->with('status', __('app.preview.locked_tab'));
+            }
+            $open = $course->previewLessonIds();
+            $requested = $lessons->firstWhere('id', (int) $request->query('lesson'));
+            $lesson = $requested ?? $lessons->first(fn (Lesson $l) => in_array($l->id, $open, true)) ?? $lessons->first();
+
+            return view('chapters.show', [
+                'course' => $course, 'chapter' => $chapter, 'tab' => 'learn', 'lessons' => $lessons, 'lesson' => $lesson,
+                'completed' => [], 'enrolled' => false, 'chapters' => $chapters, 'offline' => null,
+                'open' => $open, 'locked' => $lesson && ! in_array($lesson->id, $open, true),
+                'state' => ['lessons_done' => 0, 'lessons_total' => $lessons->count()],
+                'lessonTotal' => $chapters->sum('lessons_count'),
+            ]);
         }
 
         $completed = LessonCompletion::where('user_id', $user->id)->whereIn('lesson_id', $lessons->pluck('id'))->pluck('lesson_id')->all();
@@ -42,9 +58,8 @@ class ChapterController extends Controller
             ?? $lessons->first();
 
         $state = $this->progress->chapterState($user, $chapter);
-        $chapters = $course->chapters()->get();
-
         $data = compact('course', 'chapter', 'tab', 'lessons', 'lesson', 'completed', 'state', 'enrolled', 'chapters');
+        $data += ['open' => $lessons->pluck('id')->all(), 'locked' => false];
         $data['offline'] = $enrolled ? $this->offlinePack($course, $chapter, $lessons) : null;
 
         if ($tab === 'practice') {

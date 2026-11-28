@@ -34,6 +34,10 @@ Route::middleware('guest')->group(function () {
     Route::get('/login/telegram/status', [TelegramAuthController::class, 'loginStatus'])->name('login.telegram.status')->middleware('throttle:60,1');
 });
 
+// Lesson pages are public so anyone can watch the free previews; the controller locks the rest.
+Route::get('/courses/{course}/chapters/{chapter}/{tab?}', [ChapterController::class, 'show'])
+    ->scopeBindings()->where('tab', 'learn|practice|test')->name('chapters.show');
+
 Route::middleware('auth')->group(function () {
     Route::post('/video-uploads/lessons/{lesson}', [VideoUploadController::class, 'start'])->middleware('throttle:30,1')->name('video.start');
     Route::post('/video-uploads/lessons/{lesson}/finished', [VideoUploadController::class, 'finished'])->name('video.finished');
@@ -45,8 +49,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/courses/{course}/buy', [CourseController::class, 'purchase'])->name('courses.purchase');
 
     Route::scopeBindings()->group(function () {
-        Route::get('/courses/{course}/chapters/{chapter}/{tab?}', [ChapterController::class, 'show'])
-            ->where('tab', 'learn|practice|test')->name('chapters.show');
         Route::post('/courses/{course}/chapters/{chapter}/lessons/{lesson}/complete', [ChapterController::class, 'completeLesson'])->name('lessons.complete');
         Route::post('/courses/{course}/chapters/{chapter}/practice', [ChapterController::class, 'answer'])->name('practice.answer');
         Route::post('/courses/{course}/chapters/{chapter}/test', [ChapterController::class, 'submitTest'])->name('test.submit');
