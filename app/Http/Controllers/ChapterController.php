@@ -13,6 +13,7 @@ use App\Models\Question;
 use App\Models\TestAttempt;
 use App\Services\CertificateIssuer;
 use App\Services\ProgressService;
+use App\Services\SubscriptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -29,6 +30,9 @@ class ChapterController extends Controller
         abort_unless($course->status === CourseStatus::Published || $user?->isAdmin()
             || ($course->teacher_id && $course->teacher_id === $user?->id), 404);
         $enrolled = $user?->isEnrolledIn($course) ?? false;
+        if (! $enrolled && $user && ! $course->is_free && $user->hasActivePlan()) {
+            $enrolled = (bool) app(SubscriptionService::class)->useFor($user, $course);
+        }
 
         $chapter->load('lessons');
         $lessons = $chapter->lessons;

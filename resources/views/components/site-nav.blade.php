@@ -11,6 +11,7 @@
         <span class="hidden h-7 w-px bg-current opacity-25 lg:block"></span>
         <div class="hidden items-center gap-6 text-[15px] font-semibold lg:flex">
             <a href="{{ route('catalog') }}" class="opacity-90 hover:opacity-100">{{ __('app.nav.courses') }}</a>
+            @if (config('zirak.subscription.enabled'))<a href="{{ route('plans') }}" class="opacity-90 hover:opacity-100">{{ __('app.plan.nav') }}</a>@endif
             <a href="{{ route('home') }}#how" class="opacity-90 hover:opacity-100">{{ __('app.landing.nav_how') }}</a>
             <a href="{{ route('home') }}#tutor" class="opacity-90 hover:opacity-100">{{ __('app.landing.nav_tutor') }}</a>
             <a href="{{ auth()->check() ? route('teach.apply') : route('register', ['as' => 'teacher']) }}" class="opacity-90 hover:opacity-100">{{ __('app.landing.nav_teach') }}</a>

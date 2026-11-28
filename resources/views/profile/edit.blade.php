@@ -52,6 +52,17 @@
         @else
             <a href="{{ route('teach.apply') }}" class="rounded-2xl border border-slate-200 bg-white p-4 font-bold">{{ __('app.teach.cta') }}</a>
         @endif
+        @if (config('zirak.subscription.enabled'))
+            @php($planEnds = auth()->user()->planEndsAt())
+            <div class="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+                <span class="bg-brand-gradient flex h-10 w-10 items-center justify-center rounded-xl text-white"><x-svg-icon name="sparkle" :size="18" /></span>
+                <div class="min-w-0 flex-1">
+                    <div class="font-bold">{{ __('app.plan.profile_title') }}</div>
+                    <div class="text-sm text-slate-600">{{ $planEnds ? __('app.plan.active_until', ['date' => n($planEnds->translatedFormat('j F Y'))]) : __('app.plan.profile_none') }}</div>
+                </div>
+                <a href="{{ route('plans') }}" class="rounded-xl bg-brand-50 px-4 py-2 text-sm font-bold text-brand-700">{{ $planEnds ? __('app.plan.extend', ['days' => n(config('zirak.subscription.days'))]) : __('app.plan.see_plan') }}</a>
+            </div>
+        @endif
         <a href="{{ route('certificates.index') }}" class="rounded-2xl border border-slate-200 bg-white p-4 font-bold">{{ __('app.cert.mine') }}</a>
         <form method="POST" action="{{ route('logout') }}" data-logout>@csrf<button class="w-full rounded-2xl border border-slate-200 bg-white p-4 text-start text-slate-700">{{ __('app.nav.logout') }}</button></form>
     </div>

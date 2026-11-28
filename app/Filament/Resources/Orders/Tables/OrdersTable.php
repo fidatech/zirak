@@ -19,7 +19,8 @@ class OrdersTable
             ->columns([
                 TextColumn::make('number')->searchable()->copyable(),
                 TextColumn::make('user.phone')->label('Student')->searchable()->placeholder('—'),
-                TextColumn::make('course.title')->limit(40),
+                TextColumn::make('course.title')->label('Item')->limit(40)->placeholder('Zirak Plus')
+                    ->description(fn (Order $record) => $record->isSubscription() ? 'Monthly plan' : null),
                 TextColumn::make('total')->formatStateUsing(fn ($state, Order $record) => $record->currency === 'USD' ? '$'.number_format($state / 100, 2) : number_format($state).' AFN'),
                 TextColumn::make('coupon.code')->label('Coupon')->placeholder('—'),
                 TextColumn::make('gateway')->badge(),
@@ -31,6 +32,7 @@ class OrdersTable
                 TextColumn::make('paid_at')->dateTime()->sortable()->toggleable(),
             ])
             ->filters([
+                SelectFilter::make('kind')->label('Type')->options(['course' => 'Course', 'subscription' => 'Zirak Plus']),
                 SelectFilter::make('status')->options(['pending' => 'Pending', 'paid' => 'Paid', 'failed' => 'Failed', 'cancelled' => 'Cancelled', 'refunded' => 'Refunded']),
                 SelectFilter::make('gateway')->options(['hesabpay' => 'HesabPay', 'coupon' => 'Coupon', 'manual' => 'Manual']),
             ])

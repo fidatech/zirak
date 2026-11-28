@@ -13,10 +13,17 @@ class EnrollmentService
 {
     public function enroll(User $user, Course $course, string $source, ?Order $order = null): Enrollment
     {
-        return Enrollment::firstOrCreate(
+        $enrollment = Enrollment::firstOrCreate(
             ['user_id' => $user->id, 'course_id' => $course->id],
             ['source' => $source, 'order_id' => $order?->id],
         );
+
+        // Opened with Zirak Plus, then bought (or given): now it is theirs to keep, progress included.
+        if ($enrollment->source === 'subscription' && $source !== 'subscription') {
+            $enrollment->update(['source' => $source, 'order_id' => $order?->id]);
+        }
+
+        return $enrollment;
     }
 
     /**
@@ -41,7 +48,11 @@ class EnrollmentService
             $order->save();
 
             $order->coupon?->increment('used_count');
-            $this->enroll($order->user, $order->course, 'order', $order);
+            if ($order->isSubscription()) {
+                app(SubscriptionService::class)->activate($order);
+            } else {
+                $this->enroll($order->user, $order->course, 'order', $order);
+            }
 
             return $order;
         });

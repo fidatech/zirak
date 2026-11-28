@@ -26,9 +26,9 @@
     $groups = $user
         ? [
             'app.nav.group_learn' => [['home', 'home', 'nav.home'], ['catalog', 'grid', 'nav.courses'], ['report', 'chart', 'nav.report'], ['certificates.index', 'award', 'nav.certificates']],
-            'app.nav.group_account' => [['profile', 'user', 'nav.profile']],
+            'app.nav.group_account' => array_values(array_filter([['profile', 'user', 'nav.profile'], config('zirak.subscription.enabled') ? ['plans', 'sparkle', 'plan.nav'] : null])),
         ]
-        : ['app.nav.group_learn' => [['home', 'home', 'nav.home'], ['catalog', 'grid', 'nav.courses'], ['certificates.verify', 'shield', 'nav.verify'], ['login', 'user', 'nav.login']]];
+        : ['app.nav.group_learn' => array_values(array_filter([['home', 'home', 'nav.home'], ['catalog', 'grid', 'nav.courses'], config('zirak.subscription.enabled') ? ['plans', 'sparkle', 'plan.nav'] : null, ['certificates.verify', 'shield', 'nav.verify'], ['login', 'user', 'nav.login']]))];
 @endphp
 <aside class="no-print fixed inset-y-0 start-0 z-30 hidden w-64 flex-col border-e border-slate-200/70 bg-gradient-to-b from-white via-white to-brand-50/60 px-4 pb-5 pt-5 lg:flex">
     <a href="{{ route('home') }}" class="mb-6 flex items-center gap-2.5 rounded-2xl px-2 py-1">

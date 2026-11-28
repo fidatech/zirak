@@ -16,6 +16,16 @@ return [
     // Teacher's share of each sale, in percent (can be changed per course in admin).
     'teacher_share' => (int) env('ZIRAK_TEACHER_SHARE', 70),
 
+    // Zirak Plus: one monthly price opens every course while it lasts. HesabPay has no automatic
+    // charging, so students pay again to add another period. Teachers share plan money by lessons studied.
+    'subscription' => [
+        'enabled' => (bool) env('ZIRAK_PLAN_ENABLED', true),
+        'price_afn' => (int) env('ZIRAK_PLAN_PRICE_AFN', 999),
+        'days' => (int) env('ZIRAK_PLAN_DAYS', 30),
+        // Teachers' part of plan money (percent), split by lessons completed by subscribers in their courses.
+        'teacher_share' => (int) env('ZIRAK_PLAN_TEACHER_SHARE', 70),
+    ],
+
     'pass_mark' => (int) env('ZIRAK_PASS_MARK', 70),
 
     // log = write codes to storage/logs (development). Add a real SMS provider later.

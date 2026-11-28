@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
+use Carbon\CarbonInterface;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -112,8 +113,32 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Order::class);
     }
 
+    /** Bought, free or admin enrollments are kept forever; ones opened with Zirak Plus need an active plan. */
     public function isEnrolledIn(Course $course): bool
     {
-        return $this->enrollments()->where('course_id', $course->id)->exists();
+        $source = $this->enrollments()->where('course_id', $course->id)->value('source');
+
+        return $source !== null && ($source !== 'subscription' || $this->hasActivePlan());
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function hasActivePlan(): bool
+    {
+        return $this->planEndsAt() !== null;
+    }
+
+    /** When the student's paid plan time runs out (counting periods paid in advance), or null if no active plan. */
+    public function planEndsAt(): ?CarbonInterface
+    {
+        // Periods are always chained end to end, so the plan runs until the latest end, once one has started.
+        if (! $this->subscriptions()->active()->exists()) {
+            return null;
+        }
+
+        return $this->subscriptions()->latest('ends_at')->first()?->ends_at;
     }
 }

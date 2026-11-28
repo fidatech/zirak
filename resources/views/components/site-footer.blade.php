@@ -10,6 +10,7 @@
         <div class="flex flex-col gap-3 text-sm">
             <div class="font-bold text-white">{{ __('app.landing.footer_learn') }}</div>
             <a href="{{ route('catalog') }}" class="hover:text-white">{{ __('app.nav.courses') }}</a>
+            @if (config('zirak.subscription.enabled'))<a href="{{ route('plans') }}" class="hover:text-white">{{ __('app.plan.nav') }}</a>@endif
             <a href="{{ route('home') }}#how" class="hover:text-white">{{ __('app.landing.nav_how') }}</a>
             <a href="{{ route('home') }}#tutor" class="hover:text-white">{{ __('app.landing.nav_tutor') }}</a>
             <a href="{{ route('home') }}#offline" class="hover:text-white">{{ __('app.landing.nav_offline') }}</a>
