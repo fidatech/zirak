@@ -19,6 +19,7 @@ return [
     'questions' => 'پوښتنې',
 
     'nav' => [
+        'menu' => 'مینو',
         'group_learn' => 'زده کړه',
         'group_account' => 'حساب',
         'group_more' => 'نور',

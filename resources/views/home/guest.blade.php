@@ -72,7 +72,8 @@
         </div>
     </section>
 
-    {{-- ================= NUMBERS BAND ================= --}}
+    {{-- ================= NUMBERS BAND (hidden until there are courses to count) ================= --}}
+    @if ($stats['courses'] > 0)
     <section class="bg-ink text-white">
         <div class="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-5 py-8 text-center md:grid-cols-4">
             @foreach ([[n($stats['courses']), 'stat_courses'], [n($stats['lessons']), 'stat_lessons'], [n($stats['subjects']), 'stat_subjects'], [n(3), 'stat_languages']] as [$value, $label])
@@ -80,6 +81,7 @@
             @endforeach
         </div>
     </section>
+    @endif
 
     {{-- ================= FEATURES with sticky side menu ================= --}}
     @php($sections = ['how' => 'nav_how', 'tutor' => 'nav_tutor', 'offline' => 'nav_offline', 'certificates' => 'nav_cert', 'teach' => 'nav_teach'])
