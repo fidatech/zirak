@@ -19,6 +19,7 @@ return [
     'questions' => 'سوال',
 
     'nav' => [
+        'menu' => 'منو',
         'group_learn' => 'یادگیری',
         'group_account' => 'حساب',
         'group_more' => 'بیشتر',

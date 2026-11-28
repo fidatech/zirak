@@ -18,6 +18,7 @@ return [
     'questions' => 'questions',
 
     'nav' => [
+        'menu' => 'Menu',
         'group_learn' => 'Learning',
         'group_account' => 'Account',
         'group_more' => 'More',
