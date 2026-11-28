@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\EnrollmentService;
+use App\Services\SubscriptionService;
 
 class CheckoutService
 {
@@ -30,6 +31,13 @@ class CheckoutService
     public function start(User $user, Course $course, ?Coupon $coupon = null): string
     {
         if ($user->isEnrolledIn($course)) {
+            return route('courses.show', $course);
+        }
+
+        // Zirak Plus subscribers open any published course without paying again.
+        if (! $course->is_free && $user->hasActivePlan()) {
+            app(SubscriptionService::class)->useFor($user, $course);
+
             return route('courses.show', $course);
         }
 

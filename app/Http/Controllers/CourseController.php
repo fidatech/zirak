@@ -9,6 +9,7 @@ use App\Models\Course;
 use App\Models\Question;
 use App\Services\Payments\CheckoutService;
 use App\Services\ProgressService;
+use App\Services\SubscriptionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -33,6 +34,9 @@ class CourseController extends Controller
             'lessonCount' => $course->chapters->sum(fn ($c) => $c->lessons->count()),
             'minutes' => (int) ceil($course->chapters->sum(fn ($c) => $c->lessons->sum('duration_seconds')) / 60),
             'students' => $course->enrollments()->count(),
+            'onPlan' => $onPlan = ($user?->hasActivePlan() ?? false),
+            'planOffer' => ! $enrolled && ! $course->is_free && ! $onPlan && app(SubscriptionService::class)->enabled(),
+            'planExpired' => ! $enrolled && $user && $user->enrollments()->where('course_id', $course->id)->where('source', 'subscription')->exists(),
             'previewIds' => $previewIds = $course->previewLessonIds(),
             'firstPreview' => $enrolled ? null : $course->chapters->flatMap->lessons->firstWhere('id', $previewIds[0] ?? 0),
             'questionCount' => Question::whereIn('chapter_id', $course->chapters->pluck('id'))->count(),

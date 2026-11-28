@@ -45,7 +45,7 @@ class HesabPayGateway implements PaymentGateway
             'user_id' => $order->number,
             'items' => [[
                 'id' => $order->number,
-                'name' => mb_substr($order->course->title, 0, 450),
+                'name' => mb_substr($order->itemName(), 0, 450),
                 'price' => $order->amountMajor(),
             ]],
             'redirect_success_url' => route('payments.return', ['order' => $order->number, 'result' => 'success']),

@@ -37,6 +37,23 @@ class Order extends Model
         return $this->belongsTo(Coupon::class);
     }
 
+    public function isSubscription(): bool
+    {
+        return $this->kind === 'subscription';
+    }
+
+    /** What the student is paying for, as shown at checkout. */
+    public function itemName(): string
+    {
+        return $this->isSubscription() ? __('app.plan.item_name', ['days' => n(config('zirak.subscription.days'))]) : (string) $this->course?->title;
+    }
+
+    /** Where to send the student after paying. */
+    public function itemUrl(): string
+    {
+        return $this->isSubscription() || ! $this->course ? route('plans') : route('courses.show', $this->course);
+    }
+
     public function isPaid(): bool
     {
         return $this->status === OrderStatus::Paid;

@@ -16,3 +16,6 @@ Schedule::command('zirak:telegram-reminders')->dailyAt('15:30')->timezone('Asia/
 
 // Lesson videos still uploading/processing on Bunny (backup for missed webhooks).
 Schedule::command('zirak:video-sync')->everyFiveMinutes()->withoutOverlapping();
+
+// Share last month's Zirak Plus money with teachers.
+Schedule::command('zirak:plan-pool')->monthlyOn(1, '02:00')->timezone('Asia/Kabul')->withoutOverlapping();

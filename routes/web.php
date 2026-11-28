@@ -8,6 +8,7 @@ use App\Http\Controllers\ChapterController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TeachController;
@@ -34,6 +35,8 @@ Route::middleware('guest')->group(function () {
     Route::get('/login/telegram/status', [TelegramAuthController::class, 'loginStatus'])->name('login.telegram.status')->middleware('throttle:60,1');
 });
 
+Route::get('/plans', [PlanController::class, 'show'])->name('plans');
+
 // Lesson pages are public so anyone can watch the free previews; the controller locks the rest.
 Route::get('/courses/{course}/chapters/{chapter}/{tab?}', [ChapterController::class, 'show'])
     ->scopeBindings()->where('tab', 'learn|practice|test')->name('chapters.show');
@@ -46,6 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/become-a-teacher', [TeachController::class, 'submit'])->middleware('throttle:5,60')->name('teach.submit');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    Route::post('/plans/subscribe', [PlanController::class, 'subscribe'])->middleware('throttle:10,1')->name('plans.subscribe');
     Route::post('/courses/{course}/buy', [CourseController::class, 'purchase'])->name('courses.purchase');
 
     Route::scopeBindings()->group(function () {

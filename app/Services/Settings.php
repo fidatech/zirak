@@ -30,6 +30,9 @@ class Settings
         'anthropic_api_key' => ['zirak.tutor.api_key', 'string', true],
         'telegram_bot_token' => ['services.telegram.bot_token', 'string', true],
         'telegram_bot_username' => ['services.telegram.bot_username', 'string', false],
+        'plan_enabled' => ['zirak.subscription.enabled', 'bool', false],
+        'plan_price_afn' => ['zirak.subscription.price_afn', 'int', false],
+        'plan_teacher_share' => ['zirak.subscription.teacher_share', 'int', false],
         'telegram_webhook_secret' => ['services.telegram.webhook_secret', 'string', true],
     ];
 

@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Models\Course;
 use App\Models\Order;
 use App\Models\TeacherPayout;
+use App\Models\TeacherPoolEarning;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
@@ -37,6 +38,9 @@ class TeacherEarnings
     {
         $earned = Order::where('teacher_id', $teacher->id)->where('status', OrderStatus::Paid)
             ->groupBy('currency')->selectRaw('currency, SUM(teacher_amount) as total')->pluck('total', 'currency');
+        foreach (TeacherPoolEarning::where('teacher_id', $teacher->id)->groupBy('currency')->selectRaw('currency, SUM(amount) as total')->pluck('total', 'currency') as $cur => $amount) {
+            $earned[$cur] = ($earned[$cur] ?? 0) + (int) $amount; // Zirak Plus share
+        }
         $paid = TeacherPayout::where('teacher_id', $teacher->id)
             ->groupBy('currency')->selectRaw('currency, SUM(amount) as total')->pluck('total', 'currency');
 

@@ -54,6 +54,9 @@ class Settings extends Page
             'tutor_model' => $s->get('tutor_model'),
             'tutor_daily_limit' => $s->get('tutor_daily_limit'),
             'telegram_bot_username' => $s->get('telegram_bot_username'),
+            'plan_enabled' => (bool) $s->get('plan_enabled'),
+            'plan_price_afn' => $s->get('plan_price_afn'),
+            'plan_teacher_share' => $s->get('plan_teacher_share'),
             // Secrets are never sent back to the browser.
             'hesabpay_api_key' => null,
             'anthropic_api_key' => null,
@@ -85,6 +88,14 @@ class Settings extends Page
                             'live' => 'Live (real money)',
                         ])),
                     $this->secret('hesabpay_api_key', 'HesabPay API key'),
+                ]),
+            Section::make('Zirak Plus (monthly plan)')
+                ->description('One price opens every course for '.config('zirak.subscription.days').' days. Students pay again to add more time; HesabPay has no automatic charging.')
+                ->schema([
+                    Toggle::make('plan_enabled')->label('Sell Zirak Plus'),
+                    TextInput::make('plan_price_afn')->label('Price per period (AFN)')->numeric()->integer()->minValue(10)->maxValue(1_000_000)->required()->suffix('AFN'),
+                    TextInput::make('plan_teacher_share')->label('Teachers\' share of plan money (%)')->numeric()->integer()->minValue(0)->maxValue(100)->required()->suffix('%')
+                        ->helperText('Split each month between teachers by lessons that subscribers completed in their courses.'),
                 ]),
             Section::make('Videos (Bunny Stream)')
                 ->schema([

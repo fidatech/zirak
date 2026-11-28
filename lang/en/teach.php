@@ -11,6 +11,7 @@ return [
         'sales' => 'Sales',
         'payouts' => 'Payouts',
         'profile' => 'My public profile',
+        'plan_earnings' => 'Zirak Plus earnings',
     ],
     'model' => [
         'course' => 'course',
@@ -27,6 +28,8 @@ return [
         'sales' => 'sales',
         'payout' => 'payout',
         'payouts' => 'payouts',
+        'plan_earning' => 'plan earning',
+        'plan_earnings' => 'Zirak Plus earnings',
     ],
     'status' => [
         'draft' => 'Draft',
@@ -212,5 +215,14 @@ return [
         'latest_questions' => 'Latest student questions',
         'no_questions' => 'No questions yet. When students ask the AI tutor for a teacher, their questions appear here.',
         'answer' => 'Answer',
+    ],
+    'plan' => [
+        'month' => 'Month',
+        'lessons' => 'Lessons studied in your courses',
+        'share' => 'Your part',
+        'pool' => 'Teachers\' pool',
+        'amount' => 'You earned',
+        'empty' => 'No Zirak Plus earnings yet',
+        'explain' => 'Students with Zirak Plus can open every course. On the 1st of each month, the teachers\' share of last month\'s plan money is split by lessons subscribers completed in each teacher\'s courses. It is added to your balance.',
     ],
 ];

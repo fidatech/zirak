@@ -59,20 +59,29 @@
                     </div>
                     <div class="flex flex-col gap-4 p-5">
                         <div class="text-3xl font-black">{{ $course->is_free ? __('app.free') : afn($course->price_afn) }}</div>
+                        @if ($planExpired)
+                            <div class="rounded-xl bg-amber-50 p-3 text-sm text-amber-900">{{ __('app.plan.expired_note') }} <a href="{{ route('plans') }}" class="font-bold underline">{{ __('app.plan.renew') }}</a></div>
+                        @endif
                         @auth
                             <form method="POST" action="{{ route('courses.purchase', $course) }}" class="flex flex-col gap-3">
                                 @csrf
-                                @unless ($course->is_free)
+                                @if ($onPlan && ! $course->is_free)
+                                    <p class="flex items-center gap-2 text-sm font-bold text-green-800"><x-svg-icon name="check" :size="16" />{{ __('app.plan.plan_included') }}</p>
+                                @endif
+                                @unless ($course->is_free || $onPlan)
                                     <label class="text-sm text-slate-600">{{ __('app.course.coupon') }}
                                         <input name="coupon" value="{{ old('coupon') }}" class="mt-1 h-11 w-full rounded-xl border border-slate-200 px-3 uppercase focus:border-brand-500 focus:outline-none" dir="ltr">
                                     </label>
                                     @error('coupon')<div class="text-sm text-red-700">{{ $message }}</div>@enderror
                                 @endunless
-                                <button class="btn-primary rounded-xl py-3.5 text-lg font-bold">{{ $course->is_free ? __('app.course.enroll_free') : __('app.course.buy') }}</button>
+                                <button class="btn-primary rounded-xl py-3.5 text-lg font-bold">{{ $course->is_free ? __('app.course.enroll_free') : ($onPlan ? __('app.plan.start_with_plan') : __('app.course.buy')) }}</button>
                             </form>
                         @else
                             <a href="{{ route('register', ['next' => '/courses/'.$course->getRouteKey()]) }}" class="btn-primary rounded-xl py-3.5 text-center text-lg font-bold">{{ __('app.course.login_to_buy') }}</a>
                         @endauth
+                        @if ($planOffer)
+                            <a href="{{ route('plans') }}" class="rounded-xl bg-brand-50 px-3 py-2.5 text-center text-sm font-bold text-brand-700 hover:bg-brand-100">{{ __('app.plan.course_or', ['price' => afn(config('zirak.subscription.price_afn')), 'days' => n(config('zirak.subscription.days'))]) }}</a>
+                        @endif
                         @if ($firstPreview)
                             <a href="{{ route('chapters.show', [$course, $firstPreview->chapter_id, 'learn', 'lesson' => $firstPreview->id]) }}" class="flex items-center justify-center gap-2 rounded-xl border border-slate-200 py-3 font-bold text-ink hover:bg-slate-50">
                                 <x-svg-icon name="play" :size="18" class="text-brand-600" />{{ __('app.preview.watch') }}
