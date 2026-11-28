@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CourseStatus;
+use App\Models\AiLevel;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\Lesson;
@@ -25,7 +27,13 @@ class HomeController extends Controller
                 'subjects' => $categories->where('courses_count', '>', 0)->count(),
             ];
 
-            return view('home.guest', compact('categories', 'featured', 'stats'));
+            $levels = AiLevel::active()->with('course.chapters.lessons')->get();
+            $first = $levels->first();
+            $firstCourse = $first?->course?->status === CourseStatus::Published ? $first->course : null;
+            $firstLessons = $firstCourse ? $firstCourse->chapters->flatMap->lessons->take(8) : collect();
+            $previewIds = $firstCourse ? $firstCourse->previewLessonIds() : [];
+
+            return view('home.guest', compact('categories', 'featured', 'stats', 'levels', 'first', 'firstCourse', 'firstLessons', 'previewIds'));
         }
 
         $myCourses = $user->courses()->with('category')->latest('enrollments.updated_at')->get()

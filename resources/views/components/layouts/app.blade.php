@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#2E2A93">
+    <meta name="theme-color" content="#4B2A99">
     <title>{{ $title ? $title.sep() : '' }}{{ __('app.brand') }}</title>
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
@@ -30,7 +30,7 @@
         ]
         : ['app.nav.group_learn' => array_values(array_filter([['home', 'home', 'nav.home'], ['catalog', 'grid', 'nav.courses'], config('zirak.subscription.enabled') ? ['plans', 'sparkle', 'plan.nav'] : null, ['certificates.verify', 'shield', 'nav.verify'], ['login', 'user', 'nav.login']]))];
 @endphp
-<aside class="no-print fixed inset-y-0 start-0 z-30 hidden w-64 flex-col border-e border-slate-200/70 bg-gradient-to-b from-white via-white to-brand-50/60 px-4 pb-5 pt-5 lg:flex">
+<aside class="no-print fixed inset-y-0 start-0 z-30 hidden w-64 flex-col border-e border-slate-200/70 bg-white px-4 pb-5 pt-5 lg:flex">
     <a href="{{ route('home') }}" class="mb-6 flex items-center gap-2.5 rounded-2xl px-2 py-1">
         <span class="bg-brand-gradient flex h-10 w-10 items-center justify-center rounded-xl text-lg font-black text-white shadow-soft">{{ mb_substr(__('app.brand'), 0, 1) }}</span>
         <span class="flex flex-col leading-tight"><span class="text-xl font-black">{{ __('app.brand') }}</span><span class="text-[11px] text-slate-500">{{ __('app.landing.badge') }}</span></span>

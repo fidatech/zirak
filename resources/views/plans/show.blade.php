@@ -1,4 +1,4 @@
-@php($top = auth()->check() ? 'pt-8 lg:pt-10' : 'pt-28 lg:pt-32')
+@php($top = 'pt-8 lg:pt-10')
 <x-public-page :title="__('app.plan.name')">
     <section class="sky relative overflow-hidden px-4 pb-24 text-white {{ $top }}">
         <div class="mx-auto max-w-3xl text-center">
